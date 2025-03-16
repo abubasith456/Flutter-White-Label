@@ -21,12 +21,8 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.29.0'  # Updated to Flutter 3.10.0 to support Dart 3.x
+        flutter-version: '3.29.2'  # Updated to Flutter 3.10.0 to support Dart 3.x
 
-    - name: Set up Dart
-      uses: dart-lang/setup-dart@v1
-      with:
-        sdk: '3.7.2'  # Replace with desired Dart version
     - name: Install dependencies
       run: |
         flutter pub get  # Ensure all dependencies are fetched
