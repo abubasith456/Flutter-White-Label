@@ -1,0 +1,40 @@
+name: Android Build (Flutter)
+
+on:
+  push:
+    branches: [ "main" ]  # Trigger build on pushes to the "main" branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 18
+      uses: actions/setup-java@v3
+      with:
+        java-version: 18
+        distribution: 'temurin' 
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.7.0'  # Specify the Flutter version
+
+    - name: Install dependencies
+      run: |
+        flutter pub get
+
+    - name: Build Android Project
+      run: |
+        flutter clean
+        flutter build apk --release  # Build the release APK
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-release-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+        overwrite: true
