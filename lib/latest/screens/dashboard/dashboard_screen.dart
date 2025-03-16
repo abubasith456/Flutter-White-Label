@@ -23,7 +23,7 @@ class DashboardScreen extends StatelessWidget {
                   children: const [HomeScreen(), ProfileScreen()],
                 ),
                 Positioned(
-                  bottom: 5,
+                  bottom: 10,
                   left: 20,
                   right: 20,
                   child: _buildFloatingTabBar(context, state.currentIndex),
@@ -39,7 +39,7 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildFloatingTabBar(BuildContext context, int currentIndex) {
     return SafeArea(
       child: Container(
-        height: 70,
+        height: 60,
         decoration: BoxDecoration(
           color: Color.alphaBlend(
             Colors.white.withAlpha(240), // Adjust transparency

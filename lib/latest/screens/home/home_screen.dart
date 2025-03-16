@@ -1,3 +1,4 @@
+import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,7 @@ class HomeScreen extends StatelessWidget {
           } else if (state is HomeLoaded) {
             return Scaffold(
               backgroundColor: Colors.white,
-              appBar: _buildAppBar(state.profilePic),
+              appBar: _buildAppBar(context, state.profilePic),
               body: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +41,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(String profilePic) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, String profilePic) {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
@@ -48,9 +49,19 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: CircleAvatar(backgroundImage: NetworkImage(profilePic)),
       ),
-      title: const Text(
-        "Hi, Mohamed",
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      title: BlocBuilder<ProfileBloc, ProfileState>(
+        // BlocBuilder for ProfileBloc
+        builder: (context, profileState) {
+          return Text(
+            profileState is ProfileLoaded
+                ? "Hi ${profileState.username}"
+                : "Hi Welcome...", // Dynamically set the user name
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        },
       ),
       actions: [
         IconButton(

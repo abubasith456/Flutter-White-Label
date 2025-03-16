@@ -61,3 +61,6 @@ const String thanksForOrderScreenRoute = "thanks_order";
 //New
 const String dashboardScreenRoute = "dashboard";
 const String editProfileScreenRoute = "editProfile";
+const String addressScreenRouter = "addressScreen";
+const String orderHistoryScreenRoute = "orderHistory";
+const String notificationScreenRoute = "notificationScreen";

@@ -99,7 +99,16 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => const DashboardScreen());
     case editProfileScreenRoute:
       return MaterialPageRoute(builder: (context) => const EditProfileScreen());
-
+    case addressScreenRouter:
+      return MaterialPageRoute(builder: (context) => const AddressScreen());
+    case orderHistoryScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const OrderHistoryScreen(),
+      );
+    case notificationScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const NotificationScreen(),
+      );
     // case verificationMethodScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const VerificationMethodScreen(),
@@ -230,7 +239,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     //     builder: (context) => const NoAddressScreen(),
     //   );
     case addressesScreenRoute:
-      return MaterialPageRoute(builder: (context) => const AddressesScreen());
+    // return MaterialPageRoute(builder: (context) => const AddressesScreen());
     // case addNewAddressesScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const AddNewAddressScreen(),

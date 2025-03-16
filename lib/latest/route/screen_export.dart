@@ -4,6 +4,9 @@ export 'package:demo_app/latest/screens/login/login_screen.dart';
 export 'package:demo_app/latest/screens/signup/signup_screen.dart';
 export 'package:demo_app/latest/screens/dashboard/dashboard_screen.dart';
 export 'package:demo_app/latest/screens/edit_profile/edit_profile_screen.dart';
+export 'package:demo_app/latest/screens/address/address_screen.dart';
+export 'package:demo_app/latest/screens/order_history/order_history_screen.dart';
+export 'package:demo_app/latest/screens/notification/notification_screen.dart';
 
 // export '/screens/onbording/views/onbording_screnn.dart';
 // export '/screens/auth/views/login_screen.dart';

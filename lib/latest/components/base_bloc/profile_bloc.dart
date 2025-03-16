@@ -89,6 +89,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(ProfileInitial()) {
     on<LoadProfile>(_onLoadProfile);
     on<Logout>(_onLogout);
+    on<UpdateProfile>(_onUpdateProfile); // Registering UpdateProfile event
   }
 
   Future<void> _onLoadProfile(

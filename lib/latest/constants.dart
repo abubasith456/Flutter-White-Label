@@ -1,3 +1,4 @@
+import 'package:demo_app/latest/models/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
@@ -81,3 +82,21 @@ final emaildValidator = MultiValidator([
 ]);
 
 const pasNotMatchErrorText = "passwords do not match";
+
+// Mock Data
+List<OrderModel> mockOrders = [
+  OrderModel(
+    id: "ORD12345",
+    status: "Delivered",
+    date: "March 10, 2024",
+    total: 149.99,
+    items: ["Nike Shoes", "Adidas T-shirt"],
+  ),
+  OrderModel(
+    id: "ORD67890",
+    status: "Shipped",
+    date: "March 12, 2024",
+    total: 89.99,
+    items: ["Puma Jacket"],
+  ),
+];

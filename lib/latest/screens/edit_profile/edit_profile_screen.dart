@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
+import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -26,6 +28,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _emailController = TextEditingController(text: profileState.email);
       _dobController = TextEditingController(text: profileState.dob);
       profilePicUrl = profileState.profilePicUrl;
+      print("Profile: ${profilePicUrl}");
+    }
+  }
+
+  void _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        profilePicUrl = pickedFile.path;
+      });
     }
   }
 
@@ -65,6 +79,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               key: _formKey,
               child: Column(
                 children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          profilePicUrl.isNotEmpty
+                              ? (profilePicUrl.startsWith('http')
+                                  ? NetworkImage(profilePicUrl) as ImageProvider
+                                  : FileImage(File(profilePicUrl)))
+                              : null,
+                      child:
+                          profilePicUrl.isEmpty
+                              ? const Icon(Icons.camera_alt, size: 50)
+                              : null,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   _buildTextField(_nameController, "Name"),
                   _buildTextField(_emailController, "Email"),
                   _buildTextField(_dobController, "Date of Birth"),
