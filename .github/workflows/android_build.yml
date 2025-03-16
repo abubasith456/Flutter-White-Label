@@ -16,16 +16,16 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: 18
-        distribution: 'temurin' 
+        distribution: 'temurin'
 
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.7.0'  # Specify the Flutter version
+        flutter-version: '3.7.2'  # Ensure Flutter version is 3.7.2, compatible with Dart 3.7.2
 
     - name: Install dependencies
       run: |
-        flutter pub get
+        flutter pub get  # Ensure all dependencies are fetched
 
     - name: Build Android Project
       run: |
