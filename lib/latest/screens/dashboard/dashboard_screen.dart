@@ -69,13 +69,13 @@ class DashboardScreen extends StatelessWidget {
             elevation: 0,
             items: [
               _buildNavItem(
-                "assets/icons/Message.svg",
+                "assets/icons/hut-icon.svg",
                 "Home",
                 0,
                 currentIndex,
               ),
               _buildNavItem(
-                "assets/icons/Emoji.svg",
+                "assets/icons/corporate-user-icon.svg",
                 "Profile",
                 1,
                 currentIndex,
@@ -99,7 +99,7 @@ class DashboardScreen extends StatelessWidget {
         children: [
           SvgPicture.asset(
             iconPath,
-            height: 30,
+            height: 25,
             colorFilter: ColorFilter.mode(
               index == currentIndex ? AppConfig.primaryColor : Colors.grey,
               BlendMode.srcIn,

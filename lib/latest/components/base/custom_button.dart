@@ -8,6 +8,8 @@ class CustomButton extends StatelessWidget {
   final double width;
   final bool isGradient; // Toggle for gradient effect
   final double borderRadius;
+  final double height; // Static height for the button
+  final Icon? icon; // Optional icon parameter
 
   const CustomButton({
     super.key,
@@ -17,12 +19,15 @@ class CustomButton extends StatelessWidget {
     this.width = double.infinity,
     this.isGradient = false,
     this.borderRadius = 15.0,
+    this.height = 60.0, // Default height is set to 50.0
+    this.icon, // Optional icon
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
+      height: height, // Fixed height for the button
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -31,7 +36,6 @@ class CustomButton extends StatelessWidget {
           ),
           backgroundColor:
               isGradient ? null : (color ?? AppConfig.primaryButtonColor),
-          padding: const EdgeInsets.symmetric(vertical: 16),
           elevation: 6, // Adds shadow effect
           shadowColor: Colors.black45, // Soft shadow
         ).copyWith(
@@ -58,15 +62,23 @@ class CustomButton extends StatelessWidget {
                   : null,
           child: Container(
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: AppConfig.primaryButtonTextColor,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  icon!,
+                  const SizedBox(width: 8), // Space between icon and text
+                ],
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: AppConfig.primaryButtonTextColor,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

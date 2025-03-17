@@ -7,6 +7,10 @@ export 'package:demo_app/latest/screens/edit_profile/edit_profile_screen.dart';
 export 'package:demo_app/latest/screens/address/address_screen.dart';
 export 'package:demo_app/latest/screens/order_history/order_history_screen.dart';
 export 'package:demo_app/latest/screens/notification/notification_screen.dart';
+export 'package:demo_app/latest/screens/cart/cart_screen.dart';
+export 'package:demo_app/latest/screens/search/search_screen.dart';
+export 'package:demo_app/latest/screens/products/products_screen.dart';
+export 'package:demo_app/latest/screens/product_details/product_details_screen.dart';
 
 // export '/screens/onbording/views/onbording_screnn.dart';
 // export '/screens/auth/views/login_screen.dart';
@@ -19,12 +23,12 @@ export '/screens/discover/views/discover_screen.dart';
 // export '/screens/home/views/home_screen.dart';
 export '/screens/kids/views/kids_screen.dart';
 export '/screens/on_sale/views/on_sale_screen.dart';
-export '/screens/product/views/product_details_screen.dart';
+// export '/screens/product/views/product_details_screen.dart';
 
 export '/screens/reviews/view/product_reviews_screen.dart';
-export '/screens/search/views/search_screen.dart';
+// export '/screens/search/views/search_screen.dart';
 export '/screens/address/views/addresses_screen.dart';
-export '/screens/checkout/views/cart_screen.dart';
+// export '/screens/checkout/views/cart_screen.dart';
 
 export '/screens/notification/view/enable_notification_screen.dart';
 export '/screens/notification/view/no_notification_screen.dart';

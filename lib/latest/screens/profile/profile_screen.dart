@@ -113,9 +113,9 @@ class ProfileScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: Icon(icon, color: Colors.blueAccent),
-        title: Text(title, style: const TextStyle(fontSize: 16)),
+        title: Text(title, style: const TextStyle(fontSize: 14)),
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
       ),
     );
   }

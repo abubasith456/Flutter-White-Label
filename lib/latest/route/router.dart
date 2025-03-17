@@ -1,3 +1,5 @@
+import 'package:demo_app/latest/models/products_model.dart';
+import 'package:demo_app/latest/screens/product_details/components/product_details_args.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +111,23 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => const NotificationScreen(),
       );
+    case searchScreenRoute:
+      return MaterialPageRoute(builder: (context) => SearchScreen());
+    case productsScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => ProductsListScreen(category: "Test"),
+      );
+    case productDetailsScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) {
+          final ProductDetailsArguments args =
+              settings.arguments as ProductDetailsArguments;
+          return ProductDetailsScreen(
+            product: args.product,
+            sizeType: args.type,
+          );
+        },
+      );
     // case verificationMethodScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const VerificationMethodScreen(),
@@ -149,13 +168,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     //   return MaterialPageRoute(
     //     builder: (context) => const SetupFaceIdScreen(),
     //   );
-    case productDetailsScreenRoute:
-      return MaterialPageRoute(
-        builder: (context) {
-          bool isProductAvailable = settings.arguments as bool? ?? true;
-          return ProductDetailsScreen(isProductAvailable: isProductAvailable);
-        },
-      );
+
     case productReviewsScreenRoute:
       return MaterialPageRoute(
         builder: (context) => const ProductReviewsScreen(),
@@ -184,8 +197,6 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => const OnSaleScreen());
     case kidsScreenRoute:
       return MaterialPageRoute(builder: (context) => const KidsScreen());
-    case searchScreenRoute:
-      return MaterialPageRoute(builder: (context) => const SearchScreen());
     // case searchHistoryScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const SearchHistoryScreen(),

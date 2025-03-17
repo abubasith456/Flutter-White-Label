@@ -3,12 +3,14 @@ class Product {
   final String name;
   final double price;
   final String imageUrl;
+  final String description;
 
   Product({
     required this.id,
     required this.name,
     required this.price,
     required this.imageUrl,
+    required this.description,
   });
 
   // To map the Product to/from JSON
@@ -18,11 +20,18 @@ class Product {
       name: json['name'],
       price: json['price'].toDouble(),
       imageUrl: json['imageUrl'],
+      description: json['description'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'price': price, 'imageUrl': imageUrl};
+    return {
+      'id': id,
+      'name': name,
+      'price': price,
+      'imageUrl': imageUrl,
+      'description': description,
+    };
   }
 }
 

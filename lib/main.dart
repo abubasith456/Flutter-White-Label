@@ -1,9 +1,7 @@
 import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
-import 'package:demo_app/latest/repository/address_repository.dart';
-import 'package:demo_app/latest/repository/cart_repo.dart';
-import 'package:demo_app/latest/screens/address/address_screen.dart';
 import 'package:demo_app/latest/screens/address/components/bloc/adress_bloc.dart';
 import 'package:demo_app/latest/screens/cart/components/block/cart_block.dart';
+import 'package:demo_app/latest/screens/search/components/bloc/search_bloc.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_app/latest/route/route_constants.dart';
@@ -22,6 +20,7 @@ void main() async {
         BlocProvider(create: (context) => ProfileBloc()),
         BlocProvider(create: (context) => sl<AddressBloc>()),
         BlocProvider(create: (context) => CartBloc()..add(LoadCart())),
+        BlocProvider(create: (context) => SearchBloc()),
       ],
       child: MyApp(),
     ),

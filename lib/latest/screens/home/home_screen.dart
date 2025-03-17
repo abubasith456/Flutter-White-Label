@@ -1,4 +1,5 @@
 import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
+import 'package:demo_app/latest/route/route_constants.dart';
 import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -65,12 +66,19 @@ class HomeScreen extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          icon: SvgPicture.asset("assets/icons/Share.svg", height: 24),
-          onPressed: () {},
+          icon: SvgPicture.asset("assets/icons/search_new.svg", height: 24),
+          onPressed: () {
+            Navigator.pushNamed(context, searchScreenRoute);
+          },
         ),
         IconButton(
-          icon: SvgPicture.asset("assets/icons/Wallet.svg", height: 24),
-          onPressed: () {},
+          icon: SvgPicture.asset(
+            "assets/icons/shopping-bag-icon.svg",
+            height: 24,
+          ),
+          onPressed: () {
+            Navigator.pushNamed(context, cartScreenRoute);
+          },
         ),
         const SizedBox(width: 10),
       ],
@@ -115,22 +123,27 @@ class HomeScreen extends StatelessWidget {
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          return Column(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.blueAccent.withOpacity(0.2),
-                child: Icon(Icons.category, color: Colors.blueAccent),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                categories[index],
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, productsScreenRoute);
+            },
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.blueAccent.withOpacity(0.2),
+                  child: Icon(Icons.category, color: Colors.blueAccent),
                 ),
-              ),
-            ],
+                const SizedBox(height: 5),
+                Text(
+                  categories[index],
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
