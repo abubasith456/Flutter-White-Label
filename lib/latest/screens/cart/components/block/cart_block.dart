@@ -1,4 +1,5 @@
 import 'package:demo_app/latest/models/cart_model.dart';
+import 'package:demo_app/latest/models/products_model.dart';
 import 'package:demo_app/latest/repository/cart_repo.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

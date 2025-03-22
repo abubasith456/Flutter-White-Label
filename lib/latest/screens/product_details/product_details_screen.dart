@@ -155,8 +155,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 Expanded(
                   child: CustomButton(
                     text: 'Add to Cart',
-                    onPressed: () => {
-                      context.read() <CartBloc>().add(AddToCart(widget.product));
+                    onPressed: () {
+                      context.read<CartBloc>().add(AddToCart(widget.product));
                     },
                     icon: const Icon(Icons.shopping_cart),
                   ),

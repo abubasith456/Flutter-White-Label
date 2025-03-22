@@ -1,7 +1,9 @@
 import 'package:demo_app/latest/app_config.dart';
+import 'package:demo_app/latest/components/base/custom_dialog.dart';
 import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/latest/route/screen_export.dart';
 import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
+import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:demo_app/latest/components/base/custom_button.dart';
@@ -16,7 +18,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginBloc(),
+      create: (context) => sl<LoginBloc>(),
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -57,17 +59,24 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 20),
               BlocConsumer<LoginBloc, LoginState>(
                 listener: (context, state) {
-                  if (state.status == LoginStatus.success) {
-                    context.read<ProfileBloc>().add(LoadProfile());
+                  if (state is LoginSuccess) {
+                    final userId =
+                        state.user.id; // Assuming User has an 'id' field
+                    context.read<ProfileBloc>().add(
+                      LoadProfile(userId: userId),
+                    );
                     Navigator.pushNamed(context, dashboardScreenRoute);
+                  } else if (state is LoginFailure) {
+                    print("Login Result => ${state.errorMessage}");
+                    sl<DialogService>().showErrorDialog(
+                      context,
+                      state.errorMessage,
+                    );
                   }
                 },
                 builder: (context, state) {
                   return CustomButton(
-                    text:
-                        state.status == LoginStatus.loading
-                            ? "Signing In..."
-                            : "Sign In",
+                    text: state is LoginLoading ? "Signing In..." : "Sign In",
                     onPressed: () {
                       context.read<LoginBloc>().add(
                         LoginSubmitted(

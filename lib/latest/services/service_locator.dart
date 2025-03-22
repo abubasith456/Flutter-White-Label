@@ -1,7 +1,13 @@
+import 'package:demo_app/latest/components/base/custom_dialog.dart';
 import 'package:demo_app/latest/repository/address_repository.dart';
+import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
+import 'package:demo_app/latest/repository/auth_repo/auth_repository_impl.dart';
 import 'package:demo_app/latest/repository/cart_repo.dart';
 import 'package:demo_app/latest/screens/address/components/bloc/adress_bloc.dart';
+import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
+import 'package:demo_app/latest/screens/signup/components/bloc/signup_bloc.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +23,15 @@ Future<void> setupServiceLocator() async {
     () => SharedPrefService(sharedPreferences),
   );
 
+  // Utils
+  sl.registerLazySingleton<DialogService>(() => DialogService());
+
+  // Register dependencies
+  sl.registerLazySingleton<Dio>(() => Dio());
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(dio: sl()));
+
+  //Block containers
+
   sl.registerFactory<AddressBloc>(() => AddressBloc(sl<AddressRepository>()));
 
   sl.registerLazySingleton<AddressRepository>(
@@ -25,5 +40,12 @@ Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton<CartRepository>(
     () => CartRepository(sharedPreferences),
+  );
+  // Register LoginBloc using AuthRepository interface
+  sl.registerFactory<LoginBloc>(
+    () => LoginBloc(authRepository: sl<AuthRepository>()),
+  );
+  sl.registerFactory<SignupBloc>(
+    () => SignupBloc(authRepository: sl<AuthRepository>()),
   );
 }

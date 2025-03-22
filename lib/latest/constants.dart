@@ -2,6 +2,8 @@ import 'package:demo_app/latest/models/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
+const baseUrl = "https://abubasith86-musfi-prod.hf.space/api/v1";
+
 // Just for demo
 const productDemoImg1 = "https://i.imgur.com/CGCyp1d.png";
 const productDemoImg2 = "https://i.imgur.com/AkzWQuJ.png";

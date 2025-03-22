@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  final String userId = "67db014b34aed65b9ceb4b18";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +23,7 @@ class ProfileScreen extends StatelessWidget {
           child: BlocConsumer<ProfileBloc, ProfileState>(
             listener: (context, state) {
               if (state is LogoutSuccess) {
-                context.read<ProfileBloc>().add(LoadProfile());
+                context.read<ProfileBloc>().add(LoadProfile(userId: userId));
               }
             },
             builder: (context, state) {
@@ -30,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
               } else if (state is ProfileLoaded) {
                 return Column(
                   children: [
-                    _buildProfileHeader(state.username, state.profilePicUrl),
+                    _buildProfileHeader(state.user.name, state.user.images[0]),
                     Expanded(child: _buildOptionsList(context)),
                     // _buildLogoutButton(context), // Bottom logout button
                   ],

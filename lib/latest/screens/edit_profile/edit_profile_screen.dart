@@ -24,10 +24,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     final profileState = context.read<ProfileBloc>().state;
     if (profileState is ProfileLoaded) {
-      _nameController = TextEditingController(text: profileState.username);
-      _emailController = TextEditingController(text: profileState.email);
-      _dobController = TextEditingController(text: profileState.dob);
-      profilePicUrl = profileState.profilePicUrl;
+      _nameController = TextEditingController(text: profileState.user.name);
+      _emailController = TextEditingController(text: profileState.user.email);
+      _dobController = TextEditingController(text: profileState.user.dob);
+      profilePicUrl = profileState.user.images[0];
       print("Profile: ${profilePicUrl}");
     }
   }

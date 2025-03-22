@@ -1,7 +1,9 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:demo_app/latest/models/api_model/user_model.dart';
+import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
 import 'package:equatable/equatable.dart';
+import 'package:bloc/bloc.dart';
 
-// Events
+// Event Definitions
 abstract class SignupEvent extends Equatable {
   @override
   List<Object> get props => [];
@@ -40,86 +42,149 @@ class SignupDobChanged extends SignupEvent {
 }
 
 class SignupSubmitted extends SignupEvent {
-  SignupSubmitted(String text, String text2, String text3, String text4);
-}
-
-// State
-class SignupState extends Equatable {
   final String name;
   final String email;
   final String password;
   final String dob;
-  final bool isSubmitting;
-  final bool isSuccess;
-  final bool isFailure;
 
-  const SignupState({
-    this.name = '',
-    this.email = '',
-    this.password = '',
-    this.dob = '',
-    this.isSubmitting = false,
-    this.isSuccess = false,
-    this.isFailure = false,
-  });
-
-  SignupState copyWith({
-    String? name,
-    String? email,
-    String? password,
-    String? dob,
-    bool? isSubmitting,
-    bool? isSuccess,
-    bool? isFailure,
-  }) {
-    return SignupState(
-      name: name ?? this.name,
-      email: email ?? this.email,
-      password: password ?? this.password,
-      dob: dob ?? this.dob,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      isSuccess: isSuccess ?? this.isSuccess,
-      isFailure: isFailure ?? this.isFailure,
-    );
-  }
+  SignupSubmitted(this.name, this.email, this.password, this.dob);
 
   @override
-  List<Object> get props => [
-    name,
-    email,
-    password,
-    dob,
-    isSubmitting,
-    isSuccess,
-    isFailure,
-  ];
+  List<Object> get props => [name, email, password, dob];
 }
 
-// Bloc
+// State Definitions
+abstract class SignupState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
+
+class SignupInitial extends SignupState {}
+
+class SignupLoading extends SignupState {}
+
+class SignupSuccess extends SignupState {
+  final User user;
+  SignupSuccess(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+class SignupFailure extends SignupState {
+  final String errorMessage;
+  SignupFailure(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
+}
+
+class SignupFieldError extends SignupState {
+  final String errorMessage;
+  SignupFieldError(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
+}
+
+// BLoC
 class SignupBloc extends Bloc<SignupEvent, SignupState> {
-  SignupBloc() : super(const SignupState()) {
+  final AuthRepository authRepository;
+
+  SignupBloc({required this.authRepository}) : super(SignupInitial()) {
     on<SignupNameChanged>((event, emit) {
-      emit(state.copyWith(name: event.name));
+      emit(
+        SignupFieldError(
+          _validateName(event.name)
+              ? ''
+              : 'Name must be at least 3 characters long',
+        ),
+      );
     });
 
     on<SignupEmailChanged>((event, emit) {
-      emit(state.copyWith(email: event.email));
+      emit(
+        SignupFieldError(
+          _validateEmail(event.email) ? '' : 'Invalid email format',
+        ),
+      );
     });
 
     on<SignupPasswordChanged>((event, emit) {
-      emit(state.copyWith(password: event.password));
+      emit(
+        SignupFieldError(
+          _validatePassword(event.password)
+              ? ''
+              : 'Password must be at least 6 characters long',
+        ),
+      );
     });
 
     on<SignupDobChanged>((event, emit) {
-      emit(state.copyWith(dob: event.dob));
+      emit(
+        SignupFieldError(
+          _validateDob(event.dob) ? '' : 'Date of birth is required',
+        ),
+      );
     });
 
     on<SignupSubmitted>((event, emit) async {
-      emit(state.copyWith(isSubmitting: true));
+      // Validate fields before proceeding with signup
+      if (!_validateName(event.name) ||
+          !_validateEmail(event.email) ||
+          !_validatePassword(event.password) ||
+          !_validateDob(event.dob)) {
+        emit(
+          SignupFieldError(
+            'Please provide valid name, email, password, and date of birth.',
+          ),
+        );
+        return;
+      }
 
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+      // Proceed with signup if fields are valid
+      emit(SignupLoading());
 
-      emit(state.copyWith(isSubmitting: false, isSuccess: true));
+      try {
+        final apiResponse = await authRepository.register(
+          event.name,
+          event.email,
+          "",
+          event.dob,
+          event.password,
+        );
+
+        print(" Response from Bloc $apiResponse");
+
+        if (apiResponse.success) {
+          print("SignupSuccess emited");
+          emit(SignupSuccess(apiResponse.data!));
+        } else {
+          emit(SignupFailure(apiResponse.message));
+        }
+      } catch (error) {
+        emit(SignupFailure('An error occurred. Please try again.'));
+      }
     });
+  }
+
+  bool _validateName(String name) {
+    // Validate name: Should be at least 3 characters
+    return name.length >= 3;
+  }
+
+  bool _validateEmail(String email) {
+    // Simple email validation
+    return email.contains('@');
+  }
+
+  bool _validatePassword(String password) {
+    // Password should be at least 6 characters
+    return password.length >= 6;
+  }
+
+  bool _validateDob(String dob) {
+    // Validate date of birth (just check if it's not empty for now)
+    return dob.isNotEmpty;
   }
 }

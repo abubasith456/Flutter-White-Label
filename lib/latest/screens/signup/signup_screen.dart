@@ -1,5 +1,9 @@
 import 'package:demo_app/latest/app_config.dart';
+import 'package:demo_app/latest/components/base/custom_dialog.dart';
+import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
+import 'package:demo_app/latest/route/screen_export.dart';
 import 'package:demo_app/latest/screens/signup/components/bloc/signup_bloc.dart';
+import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:demo_app/latest/components/base/custom_button.dart';
@@ -16,7 +20,7 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SignupBloc(),
+      create: (context) => sl<SignupBloc>(),
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -55,21 +59,41 @@ class SignupScreen extends StatelessWidget {
                 "Date of Birth",
               ),
               const SizedBox(height: 20),
-              BlocBuilder<SignupBloc, SignupState>(
+              BlocConsumer<SignupBloc, SignupState>(
+                listener: (context, state) {
+                  if (state is SignupSuccess) {
+                    final userId =
+                        state.user.id; // Assuming User has an 'id' field
+                    context.read<ProfileBloc>().add(
+                      LoadProfile(userId: userId),
+                    );
+                    Navigator.pushNamed(context, dashboardScreenRoute);
+                  } else if (state is SignupFailure) {
+                    print("Login Result => ${state.errorMessage}");
+                    sl<DialogService>().showErrorDialog(
+                      context,
+                      state.errorMessage,
+                    );
+                  }
+                },
                 builder: (context, state) {
-                  return CustomButton(
-                    text: state.isSubmitting ? "Signing Up..." : "Sign Up",
-                    onPressed: () {
-                      context.read<SignupBloc>().add(
-                        SignupSubmitted(
-                          nameController.text,
-                          emailController.text,
-                          passwordController.text,
-                          dobController.text,
+                  // Show error messages from state if any
+                  if (state is SignupFieldError) {
+                    return Column(
+                      children: [
+                        Text(
+                          state.errorMessage,
+                          style: TextStyle(color: Colors.red),
                         ),
-                      );
-                    },
-                  );
+                        const SizedBox(height: 20),
+                        _buildSignupButton(context, state),
+                      ],
+                    );
+                  } else if (state is SignupLoading) {
+                    return _buildSignupButton(context, state);
+                  } else {
+                    return _buildSignupButton(context, state);
+                  }
                 },
               ),
               const SizedBox(height: 20),
@@ -106,6 +130,22 @@ class SignupScreen extends StatelessWidget {
           borderSide: BorderSide(color: AppConfig.primaryButtonColor),
         ),
       ),
+    );
+  }
+
+  Widget _buildSignupButton(BuildContext context, SignupState state) {
+    return CustomButton(
+      text: state is SignupLoading ? "Signing Up..." : "Sign Up",
+      onPressed: () {
+        context.read<SignupBloc>().add(
+          SignupSubmitted(
+            nameController.text,
+            emailController.text,
+            passwordController.text,
+            dobController.text,
+          ),
+        );
+      },
     );
   }
 }

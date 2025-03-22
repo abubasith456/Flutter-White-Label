@@ -1,8 +1,10 @@
-// Event
-
+import 'package:demo_app/latest/models/api_model/user_model.dart';
+import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
+import 'package:demo_app/latest/models/api_model/user_model.dart';
 
+// Event Definitions
 abstract class LoginEvent extends Equatable {
   @override
   List<Object> get props => [];
@@ -25,77 +27,111 @@ class PasswordChanged extends LoginEvent {
 }
 
 class LoginSubmitted extends LoginEvent {
-  LoginSubmitted(String text, String text2);
-}
-
-// State
-enum LoginStatus { initial, loading, success, failure }
-
-class LoginState extends Equatable {
   final String email;
   final String password;
-  final bool isValid;
-  final LoginStatus status;
-  final String? errorMessage;
-
-  const LoginState({
-    this.email = '',
-    this.password = '',
-    this.isValid = false,
-    this.status = LoginStatus.initial,
-    this.errorMessage,
-  });
-
-  LoginState copyWith({
-    String? email,
-    String? password,
-    bool? isValid,
-    LoginStatus? status,
-    String? errorMessage,
-  }) {
-    return LoginState(
-      email: email ?? this.email,
-      password: password ?? this.password,
-      isValid: isValid ?? this.isValid,
-      status: status ?? this.status,
-      errorMessage: errorMessage,
-    );
-  }
+  LoginSubmitted(this.email, this.password);
 
   @override
-  List<Object?> get props => [email, password, isValid, status, errorMessage];
+  List<Object> get props => [email, password];
 }
 
-//Blco
+// State Definitions
+abstract class LoginState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
+class LoginInitial extends LoginState {}
+
+class LoginLoading extends LoginState {}
+
+class LoginSuccess extends LoginState {
+  final User user;
+  LoginSuccess(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+class LoginFailure extends LoginState {
+  final String errorMessage;
+  LoginFailure(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
+}
+
+class LoginFieldError extends LoginState {
+  final String errorMessage;
+  LoginFieldError(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
+}
+
+// BLoC
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(const LoginState()) {
+  final AuthRepository authRepository;
+
+  LoginBloc({required this.authRepository}) : super(LoginInitial()) {
     on<EmailChanged>((event, emit) {
       emit(
-        state.copyWith(
-          email: event.email,
-          isValid: _validate(event.email, state.password),
+        LoginFieldError(
+          _validateEmail(event.email) ? '' : 'Invalid email format',
         ),
       );
     });
 
     on<PasswordChanged>((event, emit) {
       emit(
-        state.copyWith(
-          password: event.password,
-          isValid: _validate(state.email, event.password),
+        LoginFieldError(
+          _validatePassword(event.password)
+              ? ''
+              : 'Password must be at least 6 characters',
         ),
       );
     });
 
     on<LoginSubmitted>((event, emit) async {
-      emit(state.copyWith(status: LoginStatus.loading));
-      await Future.delayed(Duration(seconds: 2));
-      emit(state.copyWith(status: LoginStatus.success));
+      // Validate input fields before proceeding with login
+      if (!_validateEmail(event.email) || !_validatePassword(event.password)) {
+        emit(LoginFieldError('Please provide valid email and password.'));
+        return;
+      }
+
+      // Proceed with login if fields are valid
+      emit(LoginLoading());
+
+      try {
+        final apiResponse = await authRepository.login(
+          event.email,
+          event.password,
+        );
+
+        print(" Response from Bloc $apiResponse");
+
+        if (apiResponse.success) {
+          emit(
+            LoginSuccess(apiResponse.data!),
+          ); // Assuming response contains user info
+        } else {
+          emit(
+            LoginFailure(apiResponse.message),
+          ); // Assuming response has message for failure
+        }
+      } catch (error) {
+        emit(LoginFailure('An error occurred. Please try again.'));
+      }
     });
   }
 
-  bool _validate(String email, String password) {
-    return email.contains('@') && password.length >= 6;
+  bool _validateEmail(String email) {
+    // Simple email validation logic
+    return email.contains('@');
+  }
+
+  bool _validatePassword(String password) {
+    // Password should be at least 6 characters long
+    return password.length >= 6;
   }
 }

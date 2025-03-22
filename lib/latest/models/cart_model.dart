@@ -1,39 +1,4 @@
-class Product {
-  final String id;
-  final String name;
-  final double price;
-  final String imageUrl;
-  final String description;
-
-  Product({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.imageUrl,
-    required this.description,
-  });
-
-  // To map the Product to/from JSON
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['id'],
-      name: json['name'],
-      price: json['price'].toDouble(),
-      imageUrl: json['imageUrl'],
-      description: json['description'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'price': price,
-      'imageUrl': imageUrl,
-      'description': description,
-    };
-  }
-}
+import 'package:demo_app/latest/models/products_model.dart';
 
 class CartItem {
   final Product product;

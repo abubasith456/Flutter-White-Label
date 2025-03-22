@@ -55,7 +55,7 @@ class HomeScreen extends StatelessWidget {
         builder: (context, profileState) {
           return Text(
             profileState is ProfileLoaded
-                ? "Hi ${profileState.username}"
+                ? "Hi ${profileState.user.name}"
                 : "Hi Welcome...", // Dynamically set the user name
             style: const TextStyle(
               color: Colors.black,
