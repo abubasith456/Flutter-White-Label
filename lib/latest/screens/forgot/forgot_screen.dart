@@ -1,6 +1,5 @@
 import 'package:demo_app/latest/app_config.dart';
 import 'package:demo_app/latest/components/base/custom_dialog.dart';
-import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/latest/route/screen_export.dart';
 import 'package:demo_app/latest/screens/forgot/components/bloc/forgot_bloc.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
