@@ -11,4 +11,5 @@ abstract class AuthRepository {
     String dob,
     String password,
   );
+  Future forgotPassword(String email);
 }

@@ -1,4 +1,5 @@
 import 'package:demo_app/latest/models/products_model.dart';
+import 'package:demo_app/latest/screens/forgot/forgot_screen.dart';
 import 'package:demo_app/latest/screens/product_details/components/product_details_args.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
@@ -126,6 +127,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
             product: args.product,
             sizeType: args.type,
           );
+        },
+      );
+    case forgotPassRoute:
+      return MaterialPageRoute(
+        builder: (context) {
+          return ForgotPasswordScreen();
         },
       );
     // case verificationMethodScreenRoute:

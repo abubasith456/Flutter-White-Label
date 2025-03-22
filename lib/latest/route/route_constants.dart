@@ -65,3 +65,4 @@ const String notificationScreenRoute = "notificationScreen";
 const String cartScreenRoute = "cart";
 const String searchScreenRoute = "search";
 const String productsScreenRoute = "products";
+const String forgotPassRoute = "forgotPassScreen";

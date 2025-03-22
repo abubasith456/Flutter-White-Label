@@ -130,4 +130,26 @@ class AuthRepositoryImpl implements AuthRepository {
       throw Exception('Failed: $e');
     }
   }
+
+  @override
+  Future forgotPassword(String email) async {
+    try {
+      // Make sure the URL for forgot password is correct based on your API structure
+      final response = await dio.post(
+        '$authBaseUrl/forgot-password', // Assuming the endpoint is /forgot-password
+        data: {'email': email},
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        return ApiResponse<User>.fromJson(
+          responseData,
+          (data) => User.fromJson(data['user']),
+        );
+      }
+      throw Exception('Failed: DioException: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed: $e');
+    }
+  }
 }

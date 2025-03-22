@@ -4,6 +4,7 @@ import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
 import 'package:demo_app/latest/repository/auth_repo/auth_repository_impl.dart';
 import 'package:demo_app/latest/repository/cart_repo.dart';
 import 'package:demo_app/latest/screens/address/components/bloc/adress_bloc.dart';
+import 'package:demo_app/latest/screens/forgot/components/bloc/forgot_bloc.dart';
 import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
 import 'package:demo_app/latest/screens/signup/components/bloc/signup_bloc.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
@@ -47,5 +48,8 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerFactory<SignupBloc>(
     () => SignupBloc(authRepository: sl<AuthRepository>()),
+  );
+  sl.registerFactory<ForgotPasswordBloc>(
+    () => ForgotPasswordBloc(authRepository: sl<AuthRepository>()),
   );
 }

@@ -2,23 +2,22 @@ import 'package:demo_app/latest/app_config.dart';
 import 'package:demo_app/latest/components/base/custom_dialog.dart';
 import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/latest/route/screen_export.dart';
-import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
+import 'package:demo_app/latest/screens/forgot/components/bloc/forgot_bloc.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:demo_app/latest/components/base/custom_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class LoginScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
-  LoginScreen({super.key});
+  ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<LoginBloc>(),
+      create: (context) => sl<ForgotPasswordBloc>(),
       child: Scaffold(
         body: SafeArea(
           // Add SafeArea to avoid system UI overlap
@@ -38,47 +37,26 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 40),
                   Text(
-                    "Welcome Back!",
+                    "Forgot Password",
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Sign in to continue",
+                    "Enter your email to reset your password",
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 30),
                   _buildTextField(emailController, Icons.email, "Email"),
                   const SizedBox(height: 20),
-                  _buildTextField(
-                    passwordController,
-                    Icons.lock,
-                    "Password",
-                    isPassword: true,
-                  ),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, forgotPassRoute);
-                      },
-                      child: Text(
-                        "Forgot Password?",
-                        style: TextStyle(color: AppConfig.primaryButtonColor),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  BlocConsumer<LoginBloc, LoginState>(
+                  BlocConsumer<ForgotPasswordBloc, ForgotPasswordState>(
                     listener: (context, state) {
-                      if (state is LoginSuccess) {
-                        final userId =
-                            state.user.id; // Assuming User has an 'id' field
-                        context.read<ProfileBloc>().add(
-                          LoadProfile(userId: userId),
+                      if (state is ForgotPasswordSuccess) {
+                        sl<DialogService>().showSuccessDialog(
+                          context,
+                          "A reset link has been sent to your email.",
                         );
-                        Navigator.pushNamed(context, dashboardScreenRoute);
-                      } else if (state is LoginFailure) {
+                        Navigator.pushNamed(context, logInScreenRoute);
+                      } else if (state is ForgotPasswordFailure) {
                         sl<DialogService>().showErrorDialog(
                           context,
                           state.errorMessage,
@@ -88,36 +66,28 @@ class LoginScreen extends StatelessWidget {
                     builder: (context, state) {
                       return CustomButton(
                         text:
-                            state is LoginLoading ? "Signing In..." : "Sign In",
+                            state is ForgotPasswordLoading
+                                ? "Sending Reset Link..."
+                                : "Send Reset Link",
                         onPressed: () {
-                          context.read<LoginBloc>().add(
-                            LoginSubmitted(
-                              emailController.text,
-                              passwordController.text,
-                            ),
+                          context.read<ForgotPasswordBloc>().add(
+                            ForgotPasswordSubmitted(emailController.text),
                           );
                         },
                       );
                     },
                   ),
                   const SizedBox(height: 20),
-                  Center(child: Text("or continue with")),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSocialButton("assets/icons/twitter.svg"),
-                      const SizedBox(width: 20),
-                      _buildSocialButton("assets/icons/Facebook.svg"),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
                   Center(
                     child: GestureDetector(
                       onTap:
-                          () => Navigator.pushNamed(context, signUpScreenRoute),
+                          () => Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            logInScreenRoute,
+                            (Route<dynamic> route) => false,
+                          ),
                       child: Text(
-                        "Don't have an account? Sign Up",
+                        "Remembered your password? Sign In",
                         style: TextStyle(color: Colors.blue),
                       ),
                     ),
@@ -134,12 +104,10 @@ class LoginScreen extends StatelessWidget {
   Widget _buildTextField(
     TextEditingController controller,
     IconData icon,
-    String hintText, {
-    bool isPassword = false,
-  }) {
+    String hintText,
+  ) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
       decoration: InputDecoration(
         prefixIcon: Icon(icon),
         hintText: hintText,
@@ -149,9 +117,5 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildSocialButton(String asset) {
-    return InkWell(onTap: () {}, child: SvgPicture.asset(asset, height: 40));
   }
 }
