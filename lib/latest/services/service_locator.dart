@@ -3,8 +3,11 @@ import 'package:demo_app/latest/repository/address_repository.dart';
 import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
 import 'package:demo_app/latest/repository/auth_repo/auth_repository_impl.dart';
 import 'package:demo_app/latest/repository/cart_repo.dart';
+import 'package:demo_app/latest/repository/products_repo/products_repository.dart';
+import 'package:demo_app/latest/repository/products_repo/products_repository_impl.dart';
 import 'package:demo_app/latest/screens/address/components/bloc/adress_bloc.dart';
 import 'package:demo_app/latest/screens/forgot/components/bloc/forgot_bloc.dart';
+import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
 import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
 import 'package:demo_app/latest/screens/signup/components/bloc/signup_bloc.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
@@ -30,6 +33,9 @@ Future<void> setupServiceLocator() async {
   // Register dependencies
   sl.registerLazySingleton<Dio>(() => Dio());
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(dio: sl()));
+  sl.registerLazySingleton<ProductsRepository>(
+    () => ProductsRepositoryImpl(dio: sl()),
+  );
 
   //Block containers
 
@@ -51,5 +57,8 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerFactory<ForgotPasswordBloc>(
     () => ForgotPasswordBloc(authRepository: sl<AuthRepository>()),
+  );
+  sl.registerFactory<HomeBloc>(
+    () => HomeBloc(productsRepository: sl<ProductsRepository>()),
   );
 }

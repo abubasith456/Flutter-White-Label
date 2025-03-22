@@ -120,9 +120,8 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        return ApiResponse<User>.fromJson(
-          responseData,
-          (data) => User.fromJson(data['user']),
+        return throw Exception(
+          responseData['message'] ?? 'Failed to complete the request',
         );
       }
       throw Exception('Failed: DioException: ${e.message}');
@@ -142,9 +141,8 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        return ApiResponse<User>.fromJson(
-          responseData,
-          (data) => User.fromJson(data['user']),
+        return throw Exception(
+          responseData['message'] ?? 'Failed to complete the request',
         );
       }
       throw Exception('Failed: DioException: ${e.message}');

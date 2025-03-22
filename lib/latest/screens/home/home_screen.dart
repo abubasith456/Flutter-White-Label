@@ -1,10 +1,14 @@
 import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
+import 'package:demo_app/latest/models/api_model/category_model.dart';
+import 'package:demo_app/latest/models/api_model/product_model.dart';
 import 'package:demo_app/latest/route/route_constants.dart';
 import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
+import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:demo_app/latest/models/api_model/banner_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,7 +16,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeBloc()..add(LoadHomeData()),
+      create: (context) => sl<HomeBloc>()..add(LoadHomeData()),
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
@@ -85,7 +89,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCarousel(List<String> banners) {
+  Widget _buildCarousel(List<HomeBanner> banners) {
     return CarouselSlider(
       options: CarouselOptions(
         height: 160,
@@ -100,7 +104,7 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 image: DecorationImage(
-                  image: NetworkImage(banner),
+                  image: NetworkImage(banner.image),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -109,17 +113,18 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategories(List<String> categories) {
+  Widget _buildCategories(List<Category> categories) {
+    final int count = categories.length > 4 ? 2 : 1;
     return Container(
-      height: 200, // Adjusted height for 2 rows
+      height: count == 1 ? 100 : 200, // Adjusted height for 2 rows
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: GridView.builder(
         scrollDirection: Axis.horizontal,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // Creates two rows
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: count, // Creates two rows
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 1, // Square-like items
+          childAspectRatio: 1.0, // Square-like items
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
@@ -136,7 +141,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  categories[index],
+                  categories[index].name,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -150,7 +155,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNewProducts(List<Map<String, String>> products) {
+  Widget _buildNewProducts(List<Product> products) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
@@ -194,7 +199,7 @@ class HomeScreen extends StatelessWidget {
                           topRight: Radius.circular(12),
                         ),
                         child: Image.network(
-                          products[index]["image"]!,
+                          products[index].images[0],
                           fit: BoxFit.cover,
                           width: double.infinity,
                         ),
@@ -203,12 +208,12 @@ class HomeScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        products[index]["title"]!,
+                        products[index].name,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     Text(
-                      products[index]["price"]!,
+                      products[index].price.toString(),
                       style: const TextStyle(color: Colors.green),
                     ),
                     const SizedBox(height: 8),
