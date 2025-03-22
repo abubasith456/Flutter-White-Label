@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:demo_app/latest/models/address_model.dart';
 import 'package:demo_app/latest/repository/address_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,7 +31,8 @@ class AddressLoading extends AddressState {}
 
 class AddressLoaded extends AddressState {
   final List<AddressModel> addresses;
-  AddressLoaded(this.addresses);
+  final bool isAddingAction;
+  AddressLoaded(this.addresses, {this.isAddingAction = false});
 }
 
 class AddressEmpty extends AddressState {}
@@ -68,36 +71,36 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
   }
 
   Future<void> _onAddAddress(
-  AddAddress event,
-  Emitter<AddressState> emit,
-) async {
-  final state = this.state;
-  print("_onAddAddress BLOCK CALLED $state");
+    AddAddress event,
+    Emitter<AddressState> emit,
+  ) async {
+    final state = this.state;
+    print("_onAddAddress BLOCK CALLED $state");
 
-  List<AddressModel> updatedList = [];
+    List<AddressModel> updatedList = [];
 
-  if (state is AddressLoaded) {
-    updatedList = List<AddressModel>.from(state.addresses)..add(event.address);
-  } else if (state is AddressEmpty) {
-    // Handle the case where no addresses exist yet
-    updatedList = [event.address];
-  } else {
-    emit(AddressError("Cannot add address in the current state."));
-    return;
+    if (state is AddressLoaded) {
+      updatedList = List<AddressModel>.from(state.addresses)
+        ..add(event.address);
+    } else if (state is AddressEmpty) {
+      // Handle the case where no addresses exist yet
+      updatedList = [event.address];
+    } else {
+      emit(AddressError("Cannot add address in the current state."));
+      return;
+    }
+
+    print("On add: $updatedList");
+
+    try {
+      print("TRY BLOCK CALLED");
+      await _repository.saveAddresses(updatedList); // Persist data
+      emit(AddressLoaded(updatedList)); // Emit updated state
+    } catch (e) {
+      print("Error saving address: $e");
+      emit(state); // Restore previous state on failure
+    }
   }
-
-  print("On add: $updatedList");
-
-  try {
-    print("TRY BLOCK CALLED");
-    await _repository.saveAddresses(updatedList); // Persist data
-    emit(AddressLoaded(updatedList)); // Emit updated state
-  } catch (e) {
-    print("Error saving address: $e");
-    emit(state); // Restore previous state on failure
-  }
-}
-
 
   Future<void> _onSetPrimaryAddress(
     SetPrimaryAddress event,
@@ -113,7 +116,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
           }).toList();
 
       await _repository.saveAddresses(updatedList);
-      emit(AddressLoaded(updatedList));
+      emit(AddressLoaded(updatedList, isAddingAction: true));
     } else {
       emit(AddressError("Cannot set primary address in the current state."));
     }

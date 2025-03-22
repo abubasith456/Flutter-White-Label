@@ -27,6 +27,9 @@ class _AddressScreenState extends State<AddressScreen> {
           if (state is AddressLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is AddressLoaded) {
+            if (state.isAddingAction) {
+              Navigator.pop(context);
+            }
             if (state.addresses.isEmpty) {
               return const Center(
                 child: Text(
@@ -76,7 +79,7 @@ class _AddressScreenState extends State<AddressScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddAddressDialog(context),
+        onPressed: () => {},
         child: const Icon(Icons.add),
       ),
     );
@@ -137,7 +140,11 @@ class _AddressScreenState extends State<AddressScreen> {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+                },
                 child: const Text("Cancel"),
               ),
               ElevatedButton(
@@ -154,7 +161,9 @@ class _AddressScreenState extends State<AddressScreen> {
                       newAddress.address.isNotEmpty &&
                       newAddress.phone.isNotEmpty) {
                     context.read<AddressBloc>().add(AddAddress(newAddress));
-                    // Navigator.pop(context);
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                   }
                 },
                 child: const Text("Save"),

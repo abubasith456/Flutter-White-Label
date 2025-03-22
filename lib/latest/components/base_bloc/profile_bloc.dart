@@ -1,6 +1,8 @@
 import 'package:demo_app/latest/models/api_model/user_model.dart';
 import 'package:demo_app/latest/repository/api_model/api_response.dart';
 import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
+import 'package:demo_app/latest/services/service_locator.dart';
+import 'package:demo_app/latest/services/shared_pref_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,12 +26,14 @@ class LoadProfile extends ProfileEvent {
 class EditProfile extends EditProfileEvent {}
 
 class UpdateProfile extends ProfileEvent {
+  final String userId;
   final String username;
   final String email;
   final String dob;
   final String profilePicUrl;
 
   UpdateProfile({
+    required this.userId,
     required this.username,
     required this.email,
     required this.dob,
@@ -37,7 +41,7 @@ class UpdateProfile extends ProfileEvent {
   });
 
   @override
-  List<Object> get props => [username, email, dob, profilePicUrl];
+  List<Object> get props => [userId, username, email, dob, profilePicUrl];
 }
 
 class ViewAddress extends ProfileEvent {}
@@ -105,8 +109,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
 
       if (response.success) {
-        // Emit ProfileLoaded state with the User data
-        emit(ProfileLoaded(user: response.data!));
+        if (response.data != null) {
+          sl<SharedPrefService>().setUser(response.data!);
+          emit(ProfileLoaded(user: response.data!));
+        } else {
+          emit(ProfileError('Failed to load profile'));
+        }
       } else {
         // If response is not successful, emit error state
         emit(ProfileError('Failed to load profile'));
@@ -124,25 +132,26 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       emit(ProfileLoading());
 
-      // Need to work
-      // await _authRepository.updateProfile(
-      //   event.username,
-      //   event.email,
-      //   event.dob,
-      //   event.profilePicUrl,
-      // );
+      final response = await _authRepository.updateProfile(
+        event.userId,
+        event.username,
+        event.dob,
+        event.profilePicUrl,
+      );
 
       emit(
         ProfileLoaded(
-          user: User(
-            id: "0",
-            name: event.username,
-            email: event.email,
-            mobile: "",
-            images: [],
-            dob: event.dob,
-            addresses: [],
-          ),
+          user:
+              response.data ??
+              User(
+                id: "0",
+                name: event.username,
+                email: event.email,
+                mobile: "",
+                images: [],
+                dob: event.dob,
+                addresses: [],
+              ),
         ),
       );
     } catch (e) {
@@ -152,7 +161,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _onLogout(Logout event, Emitter<ProfileState> emit) async {
     emit(ProfileLoading());
-    await Future.delayed(Duration(seconds: 5)); // Simulating logout process
+    sl<SharedPrefService>().clearUser();
+    await Future.delayed(Duration(seconds: 2)); // Simulating logout process
     emit(LogoutSuccess());
   }
 }

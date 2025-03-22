@@ -12,4 +12,10 @@ abstract class AuthRepository {
     String password,
   );
   Future forgotPassword(String email);
+  Future<ApiResponse<User>> updateProfile(
+    String userId,
+    String name,
+    String dob,
+    String image,
+  );
 }

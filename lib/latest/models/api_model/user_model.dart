@@ -17,6 +17,18 @@ class User {
     required this.addresses,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'email': email,
+      'mobile': mobile,
+      'dob': dob,
+      'images': images,
+      'addresses': addresses,
+    };
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['_id'] ?? '', // Default to empty string if null
@@ -28,15 +40,15 @@ class User {
         json['images'] is List && json['images'].isNotEmpty
             ? json['images']
             : [
-                "https://i.pinimg.com/474x/fa/d5/e7/fad5e79954583ad50ccb3f16ee64f66d.jpg",
-              ],
+              "https://i.pinimg.com/474x/fa/d5/e7/fad5e79954583ad50ccb3f16ee64f66d.jpg",
+            ],
       ), // Default to a predefined image if null or empty
       addresses: List<String>.from(
         json['addresses'] is List && json['addresses'].isNotEmpty
             ? json['addresses']
             : [
-                'No Address Provided',
-              ], // Default to a sample address if null or empty
+              'No Address Provided',
+            ], // Default to a sample address if null or empty
       ),
     );
   }

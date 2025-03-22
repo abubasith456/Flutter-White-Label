@@ -85,6 +85,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     //   return MaterialPageRoute(
     //     builder: (context) => const PreferredLanguageScreen(),
     //   );
+    case splashScreenRouter:
+      return MaterialPageRoute(builder: (context) => AnimatedSplashScreen());
     case logInScreenRoute:
       return MaterialPageRoute(builder: (context) => LoginScreen());
     case signUpScreenRoute:

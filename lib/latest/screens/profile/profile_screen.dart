@@ -1,3 +1,4 @@
+import 'package:demo_app/latest/app_config.dart';
 import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/latest/route/screen_export.dart';
 import 'package:flutter/material.dart';
@@ -11,37 +12,47 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blueAccent, Colors.white],
-          ),
-        ),
-        child: SafeArea(
-          child: BlocConsumer<ProfileBloc, ProfileState>(
-            listener: (context, state) {
-              if (state is LogoutSuccess) {
-                context.read<ProfileBloc>().add(LoadProfile(userId: userId));
-              }
-            },
-            builder: (context, state) {
-              if (state is ProfileLoading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state is ProfileLoaded) {
-                return Column(
-                  children: [
-                    _buildProfileHeader(state.user.name, state.user.images[0]),
-                    Expanded(child: _buildOptionsList(context)),
-                    // _buildLogoutButton(context), // Bottom logout button
-                  ],
-                );
-              } else {
-                return const Center(child: Text("Failed to load profile"));
-              }
-            },
-          ),
+      body: SafeArea(
+        child: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is LogoutSuccess) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                logInScreenRoute,
+                (Route<dynamic> route) => false,
+              );
+            } else if (state is ProfileLoaded) {
+              print("state is ProfileLoaded called profile");
+            }
+          },
+          builder: (context, state) {
+            if (state is ProfileLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is ProfileLoaded) {
+              print(
+                "state is ProfileLoaded called builder: ${state.user.name}",
+              );
+              return Column(
+                children: [
+                  _buildProfileHeader(state.user.name, state.user.images[0]),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        children: [
+                          _buildOptionsList(context),
+                          const SizedBox(height: 50),
+                          // _buildLogoutButton(context),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return const Center(child: Text("Failed to load profile"));
+            }
+          },
         ),
       ),
     );
@@ -67,16 +78,13 @@ class ProfileScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 5),
-          Text(
+          const Text(
             'View and edit your profile details',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.7),
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.black54),
           ),
         ],
       ),
@@ -84,40 +92,44 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildOptionsList(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        children: [
-          _buildOptionItem(Icons.edit, "Edit Profile", () {
-            Navigator.pushNamed(context, editProfileScreenRoute);
-          }),
-          _buildOptionItem(Icons.location_on, "Address", () {
-            Navigator.pushNamed(context, addressScreenRouter);
-          }),
-          _buildOptionItem(Icons.history, "Order History", () {
-            Navigator.pushNamed(context, orderHistoryScreenRoute);
-          }),
-          _buildOptionItem(Icons.notifications, "Notifications", () {
-            Navigator.pushNamed(context, notificationScreenRoute);
-          }),
-          _buildOptionItem(Icons.logout, "Logout", () {
-            context.read<ProfileBloc>().add(Logout());
-          }),
-        ],
-      ),
+    return Column(
+      children: [
+        _buildOptionItem(Icons.edit, "Edit Profile", () {
+          Navigator.pushNamed(context, editProfileScreenRoute);
+        }),
+        _buildOptionItem(Icons.location_on, "Address", () {
+          Navigator.pushNamed(context, addressScreenRouter);
+        }),
+        _buildOptionItem(Icons.history, "Order History", () {
+          Navigator.pushNamed(context, orderHistoryScreenRoute);
+        }),
+        _buildOptionItem(Icons.notifications, "Notifications", () {
+          Navigator.pushNamed(context, notificationScreenRoute);
+        }),
+        _buildOptionItem(Icons.logout, "Logout", () {
+          context.read<ProfileBloc>().add(Logout());
+        }),
+      ],
     );
   }
 
   Widget _buildOptionItem(IconData icon, String title, VoidCallback onTap) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      shadowColor: Colors.black12,
+      surfaceTintColor: AppConfig.primaryColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: ListTile(
-        leading: Icon(icon, color: Colors.blueAccent),
-        title: Text(title, style: const TextStyle(fontSize: 14)),
+        leading: Icon(icon, color: Colors.blueAccent, size: 020),
+        title: Text(title, style: const TextStyle(fontSize: 16)),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 18,
+          color: Colors.black54,
+        ),
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
       ),
     );
   }

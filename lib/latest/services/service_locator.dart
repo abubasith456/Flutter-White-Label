@@ -1,4 +1,5 @@
 import 'package:demo_app/latest/components/base/custom_dialog.dart';
+import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/latest/repository/address_repository.dart';
 import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
 import 'package:demo_app/latest/repository/auth_repo/auth_repository_impl.dart';
@@ -10,6 +11,7 @@ import 'package:demo_app/latest/screens/forgot/components/bloc/forgot_bloc.dart'
 import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
 import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
 import 'package:demo_app/latest/screens/signup/components/bloc/signup_bloc.dart';
+import 'package:demo_app/latest/screens/splash/components/bloc/splash_bloc.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -49,6 +51,9 @@ Future<void> setupServiceLocator() async {
     () => CartRepository(sharedPreferences),
   );
   // Register LoginBloc using AuthRepository interface
+  sl.registerFactory<SplashBloc>(
+    () => SplashBloc(sharedPrefService: sl<SharedPrefService>()),
+  );
   sl.registerFactory<LoginBloc>(
     () => LoginBloc(authRepository: sl<AuthRepository>()),
   );

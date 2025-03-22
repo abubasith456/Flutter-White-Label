@@ -1,7 +1,7 @@
+import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
@@ -18,6 +18,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _emailController;
   late TextEditingController _dobController;
   String profilePicUrl = "";
+  String userId = ""; // Store userId here
 
   @override
   void initState() {
@@ -27,8 +28,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _nameController = TextEditingController(text: profileState.user.name);
       _emailController = TextEditingController(text: profileState.user.email);
       _dobController = TextEditingController(text: profileState.user.dob);
-      profilePicUrl = profileState.user.images[0];
-      print("Profile: ${profilePicUrl}");
+      profilePicUrl =
+          profileState.user.images.isNotEmpty
+              ? profileState.user.images[0]
+              : "";
+      userId = profileState.user.id; // Assign userId here
+      print("Profile: $profilePicUrl");
     }
   }
 
@@ -47,13 +52,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_formKey.currentState!.validate()) {
       context.read<ProfileBloc>().add(
         UpdateProfile(
+          userId: userId, // Pass the userId here
           username: _nameController.text,
           email: _emailController.text,
           dob: _dobController.text,
           profilePicUrl: profilePicUrl,
         ),
       );
-      Navigator.pop(context); // Go back after saving
     }
   }
 
@@ -65,14 +70,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
+        } else if (state is ProfileLoaded) {
+          Navigator.pop(context);
         }
       },
       builder: (context, state) {
-        if (state is ProfileLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
         return Scaffold(
-          appBar: AppBar(title: const Text("Edit Profile")),
+          appBar: AppBar(title: Text("Edit Profile")),
           body: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Form(
@@ -106,8 +110,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       backgroundColor: Colors.blueAccent,
                       minimumSize: const Size(double.infinity, 50),
                     ),
-                    child: const Text(
-                      "Save Changes",
+                    child: Text(
+                      state is ProfileLoading ? "Saving..." : "Save Changes",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -128,8 +132,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
+          errorMaxLines: 2,
         ),
-        validator: (value) => value!.isEmpty ? "$label cannot be empty" : null,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "$label cannot be empty";
+          } else if (label == "Email" &&
+              !RegExp(
+                r"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$",
+              ).hasMatch(value)) {
+            return "Please enter a valid email";
+          }
+          return null;
+        },
       ),
     );
   }

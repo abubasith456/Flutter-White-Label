@@ -77,7 +77,11 @@ class LoginScreen extends StatelessWidget {
                         context.read<ProfileBloc>().add(
                           LoadProfile(userId: userId),
                         );
-                        Navigator.pushNamed(context, dashboardScreenRoute);
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          dashboardScreenRoute,
+                          (Route<dynamic> route) => false,
+                        );
                       } else if (state is LoginFailure) {
                         sl<DialogService>().showErrorDialog(
                           context,

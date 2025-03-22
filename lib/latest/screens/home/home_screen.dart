@@ -134,10 +134,46 @@ class HomeScreen extends StatelessWidget {
             },
             child: Column(
               children: [
+                // Replace Icon with Image
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.blueAccent.withOpacity(0.2),
-                  child: Icon(Icons.category, color: Colors.blueAccent),
+                  child: ClipOval(
+                    child: Image.network(
+                      categories[index]
+                          .image, // Replace with the correct field name for the image URL
+                      fit:
+                          BoxFit
+                              .cover, // Ensures the image fits the CircleAvatar shape
+                      width: 60, // Adjust as needed
+                      height: 60, // Adjust as needed
+                      loadingBuilder: (
+                        BuildContext context,
+                        Widget child,
+                        ImageChunkEvent? loadingProgress,
+                      ) {
+                        if (loadingProgress == null) {
+                          return child;
+                        } else {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value:
+                                  loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          (loadingProgress.expectedTotalBytes ??
+                                              1)
+                                      : null,
+                            ),
+                          );
+                        }
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.error,
+                        ); // Show an error icon if the image fails to load
+                      },
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 5),
                 Text(

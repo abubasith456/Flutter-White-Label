@@ -150,4 +150,41 @@ class AuthRepositoryImpl implements AuthRepository {
       throw Exception('Failed: $e');
     }
   }
+
+  @override
+  Future<ApiResponse<User>> updateProfile(
+    String userId,
+    String name,
+    String dob,
+    String image,
+  ) async {
+    try {
+      final response = await dio.put(
+        '$authBaseUrl/$userId', // Assuming the endpoint is /forgot-password
+        data: {'name': name, 'dob': dob},
+      );
+
+      final responseData = response.data;
+
+      print("1UPDATE: $responseData");
+
+      if (response.statusCode == 200) {
+        if (responseData['success']) {
+          print("2UPDATE: success");
+          return ApiResponse<User>.fromJson(
+            responseData,
+            (data) => User.fromJson(data['user']),
+          );
+        } else {
+          throw Exception(responseData['message'] ?? 'Failed to fetch profile');
+        }
+      } else {
+        print("Failed: Server returned an error.");
+        throw Exception('Failed: Server returned an error.');
+      }
+    } catch (e) {
+      print("Except: $e");
+      throw Exception('Failed: $e');
+    }
+  }
 }

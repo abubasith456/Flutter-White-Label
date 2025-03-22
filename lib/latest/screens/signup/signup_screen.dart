@@ -72,7 +72,11 @@ class SignupScreen extends StatelessWidget {
                         context.read<ProfileBloc>().add(
                           LoadProfile(userId: userId),
                         );
-                        Navigator.pushNamed(context, dashboardScreenRoute);
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          dashboardScreenRoute,
+                          (Route<dynamic> route) => false,
+                        );
                       } else if (state is SignupFailure) {
                         print("Signup Result => ${state.errorMessage}");
                         sl<DialogService>().showErrorDialog(

@@ -57,6 +57,7 @@ const String addNewCardScreenRoute = "add_new_card";
 const String thanksForOrderScreenRoute = "thanks_order";
 
 //New
+const String splashScreenRouter = "splashScreen";
 const String dashboardScreenRoute = "dashboard";
 const String editProfileScreenRoute = "editProfile";
 const String addressScreenRouter = "addressScreen";

@@ -11,6 +11,7 @@ export 'package:demo_app/latest/screens/cart/cart_screen.dart';
 export 'package:demo_app/latest/screens/search/search_screen.dart';
 export 'package:demo_app/latest/screens/products/products_screen.dart';
 export 'package:demo_app/latest/screens/product_details/product_details_screen.dart';
+export 'package:demo_app/latest/screens/splash/splash_screen.dart';
 
 // export '/screens/onbording/views/onbording_screnn.dart';
 // export '/screens/auth/views/login_screen.dart';
