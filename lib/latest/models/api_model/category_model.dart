@@ -14,10 +14,15 @@ class Category {
   // Factory constructor to create Category from JSON
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
-      id: json['_id'],
-      name: json['name'],
-      image: json['image'],
-      link: json['link'],
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      image: json['image'] ?? '',
+      link: json['link'] ?? '',
     );
+  }
+
+  // Convert Category object to JSON
+  Map<String, dynamic> toJson() {
+    return {'_id': id, 'name': name, 'image': image, 'link': link};
   }
 }

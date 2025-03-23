@@ -20,7 +20,7 @@ void main() async {
       providers: [
         BlocProvider(create: (context) => ProfileBloc(sl<AuthRepository>())),
         BlocProvider(create: (context) => sl<AddressBloc>()),
-        BlocProvider(create: (context) => CartBloc()..add(LoadCart())),
+        BlocProvider(create: (context) => sl<CartBloc>()..add(LoadCart())),
         BlocProvider(create: (context) => SearchBloc()),
       ],
       child: MyApp(),

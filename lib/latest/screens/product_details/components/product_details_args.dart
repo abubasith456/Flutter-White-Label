@@ -1,5 +1,5 @@
+import 'package:demo_app/latest/models/api_model/product_model.dart';
 import 'package:demo_app/latest/models/enums/product_size_type.dart';
-import 'package:demo_app/latest/models/products_model.dart';
 
 class ProductDetailsArguments {
   final Product product;

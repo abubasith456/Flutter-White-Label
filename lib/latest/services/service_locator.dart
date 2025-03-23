@@ -7,9 +7,11 @@ import 'package:demo_app/latest/repository/cart_repo.dart';
 import 'package:demo_app/latest/repository/products_repo/products_repository.dart';
 import 'package:demo_app/latest/repository/products_repo/products_repository_impl.dart';
 import 'package:demo_app/latest/screens/address/components/bloc/adress_bloc.dart';
+import 'package:demo_app/latest/screens/cart/components/block/cart_block.dart';
 import 'package:demo_app/latest/screens/forgot/components/bloc/forgot_bloc.dart';
 import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
 import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
+import 'package:demo_app/latest/screens/products/components/bloc/product_bloc.dart';
 import 'package:demo_app/latest/screens/signup/components/bloc/signup_bloc.dart';
 import 'package:demo_app/latest/screens/splash/components/bloc/splash_bloc.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
@@ -66,4 +68,8 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(productsRepository: sl<ProductsRepository>()),
   );
+  sl.registerFactory<ProductsBloc>(
+    () => ProductsBloc(productsRepository: sl<ProductsRepository>()),
+  );
+  sl.registerFactory<CartBloc>(() => CartBloc(sl<CartRepository>()));
 }

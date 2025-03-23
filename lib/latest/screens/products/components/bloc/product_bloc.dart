@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:demo_app/latest/models/products_model.dart';
+import 'package:demo_app/latest/models/api_model/product_model.dart';
+import 'package:demo_app/latest/repository/products_repo/products_repository.dart';
 import 'package:equatable/equatable.dart';
 
 // Event
@@ -13,8 +14,9 @@ abstract class ProductsEvent extends Equatable {
 
 class LoadProductsByCategory extends ProductsEvent {
   final String category;
+  final String categoryId;
 
-  const LoadProductsByCategory(this.category);
+  const LoadProductsByCategory(this.category, this.categoryId);
 
   @override
   List<Object?> get props => [category];
@@ -52,46 +54,17 @@ class ProductsError extends ProductsState {
 }
 
 class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
-  final List<Product> _allProducts = [
-    Product(
-      id: '1',
-      name: 'Hijab',
-      imageUrl:
-          'https://cdn3.iconfinder.com/data/icons/design-n-code/100/272127c4-8d19-4bd3-bd22-2b75ce94ccb4-512.png',
-      price: 15.99,
-      category: 'Hijab',
-      description: "This is sooo nice Hijab",
-    ),
-    Product(
-      id: '2',
-      name: 'Scarf',
-      imageUrl:
-          'https://cdn3.iconfinder.com/data/icons/design-n-code/100/272127c4-8d19-4bd3-bd22-2b75ce94ccb4-512.png',
-      price: 10.99,
-      category: 'Scarf',
-      description: "This is sooo nice Scarf",
-    ),
-    Product(
-      id: '3',
-      name: 'T-shirt',
-      imageUrl:
-          'https://cdn3.iconfinder.com/data/icons/design-n-code/100/272127c4-8d19-4bd3-bd22-2b75ce94ccb4-512.png',
-      price: 20.99,
-      category: 'Clothing',
-      description: "This is sooo nice Clothing",
-    ),
-    // Add more products here
-  ];
-
-  ProductsBloc() : super(ProductsInitial()) {
+  final ProductsRepository productsRepository;
+  ProductsBloc({required this.productsRepository}) : super(ProductsInitial()) {
     on<LoadProductsByCategory>((event, emit) async {
       try {
         emit(ProductsLoading());
-        final filteredProducts = _allProducts.toList();
-        await Future.delayed(Duration(seconds: 1));
-        emit(ProductsLoaded(filteredProducts));
+        final categorisedProduct = await productsRepository
+            .getProductsByCategory(event.categoryId);
+        print("PRODUCTS: ${categorisedProduct.data?[0].name}");
+        emit(ProductsLoaded(categorisedProduct.data ?? []));
       } catch (e) {
-        emit(ProductsError('Failed to load products'));
+        emit(ProductsError('No product available!'));
       }
     });
   }

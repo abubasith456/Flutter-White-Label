@@ -7,4 +7,5 @@ abstract class ProductsRepository {
   Future<ApiResponse<List<HomeBanner>>> getBanners();
   Future<ApiResponse<List<Category>>> getCategories();
   Future<ApiResponse<List<Product>>> getProducts();
+  Future<ApiResponse<List<Product>>> getProductsByCategory(String catiegoryId);
 }

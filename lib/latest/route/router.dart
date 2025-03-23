@@ -1,6 +1,7 @@
 import 'package:demo_app/latest/models/products_model.dart';
 import 'package:demo_app/latest/screens/forgot/forgot_screen.dart';
 import 'package:demo_app/latest/screens/product_details/components/product_details_args.dart';
+import 'package:demo_app/latest/screens/products/components/product_args.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
 import 'package:flutter/material.dart';
@@ -70,17 +71,9 @@ import 'screen_export.dart';
 Route<dynamic> generateRoute(RouteSettings settings) {
   print("Route<dynamic>: ${settings.name}");
 
-  bool isOnboardCompleted() {
-    return sl.get<SharedPrefService>().getOnboardPassed();
-  }
-
   switch (settings.name) {
     case onbordingScreenRoute:
-      if (isOnboardCompleted()) {
-        return MaterialPageRoute(builder: (context) => LoginScreen());
-      } else {
-        return MaterialPageRoute(builder: (context) => OnBoardingScreen());
-      }
+      return MaterialPageRoute(builder: (context) => OnBoardingScreen());
     // case preferredLanuageScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const PreferredLanguageScreen(),
@@ -118,7 +111,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => SearchScreen());
     case productsScreenRoute:
       return MaterialPageRoute(
-        builder: (context) => ProductsListScreen(category: "Test"),
+        builder: (context) {
+          final ProductsArguments args =
+              settings.arguments as ProductsArguments;
+          return ProductsListScreen(
+            category: args.category,
+            categoryId: args.categoryId,
+          );
+        },
       );
     case productDetailsScreenRoute:
       return MaterialPageRoute(

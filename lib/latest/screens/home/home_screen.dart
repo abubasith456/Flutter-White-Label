@@ -2,7 +2,9 @@ import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/latest/models/api_model/category_model.dart';
 import 'package:demo_app/latest/models/api_model/product_model.dart';
 import 'package:demo_app/latest/route/route_constants.dart';
+import 'package:demo_app/latest/screens/cart/components/block/cart_block.dart';
 import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
+import 'package:demo_app/latest/screens/products/components/product_args.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +57,6 @@ class HomeScreen extends StatelessWidget {
         child: CircleAvatar(backgroundImage: NetworkImage(profilePic)),
       ),
       title: BlocBuilder<ProfileBloc, ProfileState>(
-        // BlocBuilder for ProfileBloc
         builder: (context, profileState) {
           return Text(
             profileState is ProfileLoaded
@@ -75,13 +76,48 @@ class HomeScreen extends StatelessWidget {
             Navigator.pushNamed(context, searchScreenRoute);
           },
         ),
-        IconButton(
-          icon: SvgPicture.asset(
-            "assets/icons/shopping-bag-icon.svg",
-            height: 24,
-          ),
-          onPressed: () {
-            Navigator.pushNamed(context, cartScreenRoute);
+
+        // Cart Icon with Badge
+        BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            return Stack(
+              children: [
+                IconButton(
+                  icon: SvgPicture.asset(
+                    "assets/icons/shopping-bag-icon.svg",
+                    height: 24,
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, cartScreenRoute);
+                  },
+                ),
+                if (state.cartCount > 0) // Show badge only when cart count > 0
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: Text(
+                        '${state.cartCount}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
           },
         ),
         const SizedBox(width: 10),
@@ -130,7 +166,14 @@ class HomeScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, productsScreenRoute);
+              Navigator.pushNamed(
+                context,
+                productsScreenRoute,
+                arguments: ProductsArguments(
+                  category: categories[index].name,
+                  categoryId: categories[index].id,
+                ),
+              );
             },
             child: Column(
               children: [

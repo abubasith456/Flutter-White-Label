@@ -45,4 +45,18 @@ class Product {
       createdAt: json['createdAt'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'description': description,
+      'price': price,
+      'category': category.toJson(),
+      'stock': stock,
+      'images': images,
+      'offerId': offerId,
+      'createdAt': createdAt,
+    };
+  }
 }

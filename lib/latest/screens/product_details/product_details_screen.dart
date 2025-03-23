@@ -1,9 +1,9 @@
+import 'package:demo_app/latest/models/api_model/product_model.dart';
 import 'package:demo_app/latest/screens/cart/components/block/cart_block.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_app/latest/app_config.dart';
 import 'package:demo_app/latest/components/base/custom_button.dart';
 import 'package:demo_app/latest/models/enums/product_size_type.dart';
-import 'package:demo_app/latest/models/products_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -49,7 +49,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        widget.product.imageUrl,
+                        widget.product.images[0],
                         fit: BoxFit.cover,
                         width: double.infinity,
                       ),
@@ -58,7 +58,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        widget.product.imageUrl,
+                        widget.product.images[0],
                         fit: BoxFit.cover,
                         width: double.infinity,
                       ),

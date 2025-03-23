@@ -19,7 +19,7 @@ class ProductsRepositoryImpl extends ProductsRepository {
     try {
       Response response = await dio.get(
         '$productsBaseUrl/banners',
-      ); // Replace with actual endpoint
+      );
       final responseData = response.data;
       print(responseData);
       if (response.statusCode == 200) {
@@ -59,7 +59,7 @@ class ProductsRepositoryImpl extends ProductsRepository {
     try {
       Response response = await dio.get(
         '$productsBaseUrl/categories',
-      ); // Replace with actual endpoint
+      );
       final responseData = response.data;
 
       if (response.statusCode == 200) {
@@ -98,7 +98,44 @@ class ProductsRepositoryImpl extends ProductsRepository {
     try {
       Response response = await dio.get(
         '$productsBaseUrl/products',
-      ); // Replace with actual endpoint
+      );
+      final responseData = response.data;
+
+      if (response.statusCode == 200) {
+        if (responseData['success']) {
+          List<Product> products =
+              (responseData['data']['products'] as List)
+                  .map((banner) => Product.fromJson(banner))
+                  .toList();
+          return ApiResponse<List<Product>>.fromJson(
+            responseData,
+            (data) => products,
+          );
+        } else {
+          throw Exception(responseData['message'] ?? 'Failed to load products');
+        }
+      } else {
+        throw Exception('Failed: Server returned an error.');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        return throw Exception(
+          responseData['message'] ?? 'Failed to complete the request',
+        );
+      }
+      throw Exception('Failed: DioException: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed: $e');
+    }
+  }
+  
+  @override
+  Future<ApiResponse<List<Product>>> getProductsByCategory(String catiegoryId) async {
+    try {
+      Response response = await dio.get(
+        '$productsBaseUrl/products/category/$catiegoryId',
+      );
       final responseData = response.data;
 
       if (response.statusCode == 200) {

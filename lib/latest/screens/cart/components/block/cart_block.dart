@@ -1,7 +1,8 @@
+import 'package:demo_app/latest/models/api_model/product_model.dart';
 import 'package:demo_app/latest/models/cart_model.dart';
-import 'package:demo_app/latest/models/products_model.dart';
 import 'package:demo_app/latest/repository/cart_repo.dart';
 import 'package:demo_app/latest/services/service_locator.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Bloc Events
@@ -18,66 +19,85 @@ class RemoveFromCart extends CartEvent {
 }
 
 class UpdateQuantity extends CartEvent {
-  final Product product;
-  final int quantity;
-  UpdateQuantity(this.product, this.quantity);
+  final String productId;
+  final int newQuantity;
+
+  UpdateQuantity({required this.productId, required this.newQuantity});
 }
 
 class LoadCart extends CartEvent {}
 
-// Bloc State
-class CartState {
+class ClearAllCart extends CartEvent {}
+
+// Bloc State with cart count
+class CartState extends Equatable {
   final List<CartItem> cartItems;
-  CartState(this.cartItems);
+  final int cartCount;
+
+  CartState(this.cartItems)
+    : cartCount = cartItems.fold(0, (sum, item) => sum + item.quantity);
+
+  CartState copyWith({List<CartItem>? cartItems}) {
+    return CartState(cartItems ?? this.cartItems);
+  }
+
+  @override
+  List<Object?> get props => [cartItems, cartCount];
 }
 
 // Bloc Implementation
 class CartBloc extends Bloc<CartEvent, CartState> {
-  final CartRepository _cartRepository = sl<CartRepository>();
+  final CartRepository _cartRepository;
 
-  CartBloc() : super(CartState([])) {
-    on<AddToCart>((event, emit) {
-      // Add item to cart
-      final cartItem = CartItem(
-        product: event.product,
-        quantity: 1,
-      ); // Default quantity is 1
-      final updatedCart = List<CartItem>.from(state.cartItems)..add(cartItem);
-      emit(CartState(updatedCart));
-    });
-
-    on<RemoveFromCart>((event, emit) {
-      // Remove item from cart
-      final updatedCart =
-          state.cartItems
-              .where((item) => item.product.id != event.product.id)
-              .toList();
-      emit(CartState(updatedCart));
-    });
-
-    on<UpdateQuantity>((event, emit) {
-      // Update item quantity in the cart
-      final updatedCart =
-          state.cartItems.map((item) {
-            if (item.product.id == event.product.id) {
-              item.quantity = event.quantity;
-            }
-            return item;
-          }).toList();
-      emit(CartState(updatedCart));
-    });
-
+  CartBloc(this._cartRepository) : super(CartState([])) {
+    // ✅ Load all cart items initially
     on<LoadCart>((event, emit) async {
-      print("CART CALLED: LoadCart");
-      // Load cart data from repository (returns List<CartModel>)
-      final cartModels = await _cartRepository.getCart();
-
-      // Flatten the cart models to CartItems (cartItems is already a List<CartItem>)
-      final cartItems =
-          cartModels.expand((cartModel) => cartModel.cartItems).toList();
-      print("CART CALLED: ${cartItems}");
-      // Emit the cart state with the updated cartItems
+      final cartItems = await _cartRepository.getAllCartItems();
       emit(CartState(cartItems));
+    });
+
+    // ✅ Add item to cart and update the UI
+    on<AddToCart>((event, emit) async {
+      await _cartRepository.addCartItem(event.product);
+      final cartItems = await _cartRepository.getAllCartItems();
+      emit(CartState(cartItems));
+    });
+
+    // ✅ Remove item from cart and update the UI
+    on<RemoveFromCart>((event, emit) async {
+      await _cartRepository.removeProductById(event.product.id);
+      final cartItems = await _cartRepository.getAllCartItems();
+      emit(CartState(cartItems));
+    });
+
+    on<UpdateQuantity>((event, emit) async {
+      try {
+        List<CartItem> cartItems = await _cartRepository.getAllCartItems();
+
+        int index = cartItems.indexWhere(
+          (item) => item.product.id == event.productId,
+        );
+
+        if (index != -1) {
+          cartItems[index] = cartItems[index].copyWith(
+            quantity: event.newQuantity,
+          );
+
+          await _cartRepository.saveAllCarts(cartItems);
+
+          // 🔥 Emit a new state to reflect changes in the UI
+          emit(CartState(cartItems));
+        }
+      } catch (e, stackTrace) {
+        print("Error updating cart: $e");
+        print("StackTrace: $stackTrace");
+      }
+    });
+
+    // ✅ Clear all cart items
+    on<ClearAllCart>((event, emit) async {
+      await _cartRepository.clearAllCarts();
+      emit(CartState([]));
     });
   }
 }

@@ -3,21 +3,29 @@ import 'package:demo_app/latest/route/route_constants.dart';
 import 'package:demo_app/latest/screens/product_details/components/product_details_args.dart';
 import 'package:demo_app/latest/screens/products/components/bloc/product_bloc.dart';
 import 'package:demo_app/latest/screens/products/components/custom_product_card.dart';
+import 'package:demo_app/latest/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProductsListScreen extends StatelessWidget {
   final String category;
+  final String categoryId;
 
-  const ProductsListScreen({super.key, required this.category});
+  const ProductsListScreen({
+    super.key,
+    required this.category,
+    required this.categoryId,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('$category Products')),
+      appBar: AppBar(title: Text(category)),
       body: BlocProvider(
         create:
-            (context) => ProductsBloc()..add(LoadProductsByCategory(category)),
+            (context) =>
+                sl<ProductsBloc>()
+                  ..add(LoadProductsByCategory(category, categoryId)),
         child: BlocBuilder<ProductsBloc, ProductsState>(
           builder: (context, state) {
             if (state is ProductsLoading) {
@@ -37,7 +45,7 @@ class ProductsListScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final product = state.products[index];
                   return CustomProductCard(
-                    image: product.imageUrl,
+                    image: product.images[0],
                     title: product.name,
                     price: product.price.toString(),
                     onTap: () {
