@@ -12,6 +12,7 @@ import 'package:demo_app/latest/screens/forgot/components/bloc/forgot_bloc.dart'
 import 'package:demo_app/latest/screens/home/components/bloc/home_bloc.dart';
 import 'package:demo_app/latest/screens/login/components/bloc/login_bloc.dart';
 import 'package:demo_app/latest/screens/products/components/bloc/product_bloc.dart';
+import 'package:demo_app/latest/screens/search/components/bloc/search_bloc.dart';
 import 'package:demo_app/latest/screens/signup/components/bloc/signup_bloc.dart';
 import 'package:demo_app/latest/screens/splash/components/bloc/splash_bloc.dart';
 import 'package:demo_app/latest/services/shared_pref_service.dart';
@@ -72,4 +73,7 @@ Future<void> setupServiceLocator() async {
     () => ProductsBloc(productsRepository: sl<ProductsRepository>()),
   );
   sl.registerFactory<CartBloc>(() => CartBloc(sl<CartRepository>()));
+  sl.registerFactory<SearchBloc>(
+    () => SearchBloc(productRepository: sl<ProductsRepository>()),
+  );
 }

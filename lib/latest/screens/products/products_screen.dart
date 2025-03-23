@@ -1,3 +1,4 @@
+import 'package:demo_app/latest/components/base/custom_appbar.dart';
 import 'package:demo_app/latest/models/enums/product_size_type.dart';
 import 'package:demo_app/latest/route/route_constants.dart';
 import 'package:demo_app/latest/screens/product_details/components/product_details_args.dart';
@@ -20,7 +21,7 @@ class ProductsListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(category)),
+      appBar: CustomAppBar(title: category),
       body: BlocProvider(
         create:
             (context) =>
@@ -34,7 +35,7 @@ class ProductsListScreen extends StatelessWidget {
 
             if (state is ProductsLoaded) {
               return GridView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, // 2 items per row
                   childAspectRatio: 0.75, // Adjust for card aspect

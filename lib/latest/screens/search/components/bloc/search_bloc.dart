@@ -1,14 +1,18 @@
-import 'package:demo_app/latest/models/search_models.dart';
+import 'package:demo_app/latest/models/api_model/category_model.dart';
+import 'package:demo_app/latest/models/api_model/product_model.dart';
+import 'package:demo_app/latest/repository/products_repo/products_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-//Event
+// Event
 abstract class SearchEvent {}
 
-class LoadCategories extends SearchEvent {}
+class LoadData extends SearchEvent {}
 
 class SearchProducts extends SearchEvent {
   final String query;
-  SearchProducts(this.query);
+  final List<String> selectedCategories;
+
+  SearchProducts(this.query, {this.selectedCategories = const []});
 }
 
 // State
@@ -16,14 +20,18 @@ abstract class SearchState {}
 
 class SearchInitial extends SearchState {}
 
-class CategoriesLoaded extends SearchState {
+class SearchDataLoaded extends SearchState {
+  final List<Product> allProducts; // Store all products
+  final List<Product> displayedProducts; // Filtered products
   final List<Category> categories;
-  CategoriesLoaded(this.categories);
-}
+  final List<String> selectedCategories;
 
-class ProductsLoaded extends SearchState {
-  final List<Product> products;
-  ProductsLoaded(this.products);
+  SearchDataLoaded({
+    this.allProducts = const [],
+    this.displayedProducts = const [],
+    this.categories = const [],
+    this.selectedCategories = const [],
+  });
 }
 
 class SearchError extends SearchState {
@@ -31,80 +39,65 @@ class SearchError extends SearchState {
   SearchError(this.message);
 }
 
+// Bloc
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final List<Product> _allProducts = [
-    Product(
-      id: '1',
-      name: 'Hijab',
-      imageUrl:
-          'https://cdn1.iconfinder.com/data/icons/image-manipulations/100/13-512.png',
-      price: 15.99,
-      category: 'Hijab',
-    ),
-    Product(
-      id: '2',
-      name: 'Scarf',
-      imageUrl:
-          'https://cdn1.iconfinder.com/data/icons/image-manipulations/100/13-512.png',
-      price: 10.99,
-      category: 'Scarf',
-    ),
-    Product(
-      id: '3',
-      name: 'T-shirt',
-      imageUrl:
-          'https://cdn1.iconfinder.com/data/icons/image-manipulations/100/13-512.png',
-      price: 20.99,
-      category: 'Clothing',
-    ),
-    // Add more products here
-  ];
+  final ProductsRepository productRepository;
 
-  final List<Category> _categories = [
-    Category(
-      name: 'Hijab',
-      imageUrl:
-          'https://cdn1.iconfinder.com/data/icons/image-manipulations/100/13-512.png',
-    ),
-    Category(
-      name: 'Scarf',
-      imageUrl:
-          'https://cdn1.iconfinder.com/data/icons/image-manipulations/100/13-512.png',
-    ),
-    Category(
-      name: 'Clothing',
-      imageUrl:
-          'https://cdn1.iconfinder.com/data/icons/image-manipulations/100/13-512.png',
-    ),
-    // Add more categories here
-  ];
-
-  SearchBloc() : super(SearchInitial()) {
-    on<LoadCategories>((event, emit) async {
+  SearchBloc({required this.productRepository}) : super(SearchInitial()) {
+    on<LoadData>((event, emit) async {
       try {
-        emit(CategoriesLoaded(_categories)); // Load categories
+        final categoriesResponse = await productRepository.getCategories();
+        final productsResponse = await productRepository.getProducts();
+        emit(
+          SearchDataLoaded(
+            categories: categoriesResponse.data ?? [],
+            allProducts: productsResponse.data ?? [],
+            displayedProducts: [], // Initially empty
+          ),
+        );
       } catch (e) {
-        emit(SearchError('Failed to load categories'));
+        emit(SearchError('Failed to load data: ${e.toString()}'));
       }
     });
 
     on<SearchProducts>((event, emit) async {
       try {
-        final query =
-            event.query.toLowerCase(); // Default to empty string if null
-        if (query.isEmpty) {
-          emit(ProductsLoaded([])); // Return empty list if query is empty
-          return;
+        if (state is SearchDataLoaded) {
+          final currentState = state as SearchDataLoaded;
+          final query = event.query.toLowerCase();
+          final selectedCategories = event.selectedCategories;
+
+          List<Product> filteredProducts =
+              currentState.allProducts.where((product) {
+                bool matchesQuery =
+                    query.isEmpty || product.name.toLowerCase().contains(query);
+                bool matchesCategory =
+                    selectedCategories.isEmpty ||
+                    selectedCategories.contains(product.category.id);
+                return matchesQuery && matchesCategory;
+              }).toList();
+
+          if (event.selectedCategories.isEmpty) {
+            emit(
+              SearchDataLoaded(
+                allProducts: currentState.allProducts, // Keep all products
+                displayedProducts: [], // Update only displayed list
+                categories: currentState.categories,
+                selectedCategories: selectedCategories,
+              ),
+            );
+          } else {
+            emit(
+              SearchDataLoaded(
+                allProducts: currentState.allProducts, // Keep all products
+                displayedProducts:
+                    filteredProducts, // Update only displayed list
+                categories: currentState.categories,
+                selectedCategories: selectedCategories,
+              ),
+            );
+          }
         }
-
-        final filteredProducts =
-            _allProducts
-                .where((product) => product.name.toLowerCase().contains(query))
-                .toList();
-
-        emit(
-          ProductsLoaded(filteredProducts),
-        ); // Filter products based on search query
       } catch (e) {
         emit(SearchError('Failed to search products: ${e.toString()}'));
       }

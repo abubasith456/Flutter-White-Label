@@ -1,3 +1,4 @@
+import 'package:demo_app/latest/components/base/custom_appbar.dart';
 import 'package:demo_app/latest/models/api_model/product_model.dart';
 import 'package:demo_app/latest/screens/cart/components/block/cart_block.dart';
 import 'package:flutter/material.dart';
@@ -28,126 +29,114 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final List<int> sizeOptionsNumber = [20, 30, 40, 50];
 
   @override
+  void initState() {
+    super.initState();
+    // Set default size based on `sizeType`
+    switch (widget.sizeType) {
+      case SizeType.string:
+        selectedSize =
+            sizeOptionsString.isNotEmpty ? sizeOptionsString[0] : null;
+        break;
+      case SizeType.number:
+        selectedSize =
+            sizeOptionsNumber.isNotEmpty
+                ? sizeOptionsNumber[0].toString()
+                : null;
+        break;
+      case SizeType.none:
+        selectedSize = null;
+        break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product Details'),
-        backgroundColor: AppConfig.primaryColor,
-      ),
       body: Stack(
         children: [
-          // Main content area
-          Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Align everything to the left
-            children: [
-              // Product Image Carousel
-              Container(
-                height: 300.0,
-                child: PageView(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        widget.product.images[0],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      ),
+          NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  expandedHeight: 300.0,
+                  floating: false,
+                  pinned: true,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Image.network(
+                      widget.product.images[0],
+                      fit: BoxFit.cover,
+                      width: double.infinity,
                     ),
-                    // Placeholder for additional images
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        widget.product.images[0],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Product Title and Price
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Align to left
-                  children: [
-                    Text(
-                      widget.product.name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '\Rs.${widget.product.price.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.orange, size: 18),
-                        const SizedBox(width: 4),
-                        Text(
-                          '4.5 (120 reviews)', // Mock data for now
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              ),
-
-              // Product Description (only if available)
-              if (widget.product.description.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    widget.product.description,
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
+                  backgroundColor: AppConfig.primaryColor,
                 ),
-              const SizedBox(height: 16),
-
-              // Size Selection (Only if SizeType is not 'none')
-              if (widget.sizeType != SizeType.none)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Align to left
+              ];
+            },
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.product.name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Rs.${widget.product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
                     children: [
-                      const Text(
-                        'Select Size:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const Icon(Icons.star, color: Colors.orange, size: 18),
+                      const SizedBox(width: 4),
+                      Text(
+                        '4.5 (120 reviews)',
+                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(spacing: 8.0, children: _buildSizeOptions()),
                     ],
                   ),
-                ),
-              const SizedBox(height: 16),
-            ],
+                  const SizedBox(height: 16),
+                  if (widget.product.description.isNotEmpty)
+                    Text(
+                      widget.product.description,
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  const SizedBox(height: 16),
+
+                  if (widget.sizeType != SizeType.none)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Select Size:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(spacing: 8.0, children: _buildSizeOptions()),
+                      ],
+                    ),
+                  const SizedBox(height: 80),
+                ],
+              ),
+            ),
           ),
 
-          // Add to Cart and Buy Now Buttons at the Bottom
           Positioned(
-            bottom: 16,
+            bottom: 20,
             left: 16,
             right: 16,
             child: Row(
@@ -209,15 +198,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         label: Text(size),
         backgroundColor:
             selectedSize == size ? AppConfig.primaryColor : Colors.grey[300],
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: TextStyle(
+          color: selectedSize == size ? Colors.white : Colors.black,
+        ),
       ),
     );
-  }
-
-  void _addToCart(BuildContext context) {
-    context.read<CartBloc>().add(AddToCart(widget.product));
-
-    print('Added ${widget.product.name} to cart with size: $selectedSize');
   }
 
   void _buyNow() {

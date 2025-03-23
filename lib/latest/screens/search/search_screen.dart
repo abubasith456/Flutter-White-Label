@@ -1,3 +1,4 @@
+import 'package:demo_app/latest/components/base/custom_appbar.dart';
 import 'package:demo_app/latest/screens/search/components/bloc/search_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,104 +12,180 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  List<String> _selectedCategories = [];
 
   @override
   void initState() {
     super.initState();
-    // Load categories when the screen is loaded
-    context.read<SearchBloc>().add(LoadCategories());
+    context.read<SearchBloc>().add(LoadData());
+  }
+
+  void _onSearch() {
+    final bloc = context.read<SearchBloc>();
+    bloc.add(
+      SearchProducts(
+        _searchController.text,
+        selectedCategories: _selectedCategories,
+      ),
+    );
+  }
+
+  void _onCategorySelected(String category) {
+    setState(() {
+      if (_selectedCategories.contains(category)) {
+        _selectedCategories.remove(category);
+      } else {
+        _selectedCategories.add(category);
+      }
+    });
+
+    // Ensure Bloc updates properly
+    context.read<SearchBloc>().add(
+      SearchProducts(
+        _searchController.text,
+        selectedCategories: _selectedCategories,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Search")),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (query) {
-                // Dispatch the search event when user types
-                context.read<SearchBloc>().add(SearchProducts(query));
-              },
-              decoration: InputDecoration(
-                labelText: 'Search for products',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-              ),
-            ),
-          ),
-          Expanded(
-            child: BlocBuilder<SearchBloc, SearchState>(
-              builder: (context, state) {
-                if (state is CategoriesLoaded) {
-                  return Column(
-                    children: [
-                      Container(
-                        height: 80.0, // Height of category list
-                        child: ListView.builder(
-                          itemCount: state.categories.length,
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (context, index) {
-                            final category = state.categories[index];
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    Image.network(
-                                      category.imageUrl,
-                                      width: 60,
-                                      height: 60,
-                                    ),
-                                    Text(category.name),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+      appBar: CustomAppBar(title: "Search"),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildSearchField(),
+            const SizedBox(height: 10),
+            _buildCategoryChips(),
+            const SizedBox(height: 10),
+            Expanded(child: _buildProductList()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      onChanged: (query) => _onSearch(),
+      decoration: InputDecoration(
+        labelText: 'Search for products',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon:
+            _searchController.text.isNotEmpty
+                ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    _onSearch();
+                  },
+                )
+                : null,
+      ),
+    );
+  }
+
+  Widget _buildCategoryChips() {
+    return BlocBuilder<SearchBloc, SearchState>(
+      builder: (context, state) {
+        if (state is SearchDataLoaded) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children:
+                  state.categories.map((category) {
+                    final isSelected = _selectedCategories.contains(
+                      category.id,
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: ChoiceChip(
+                        label: Text(category.name),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          _onCategorySelected(category.id);
+                        },
+                        selectedColor: Colors.blueAccent,
+                        backgroundColor: Colors.grey[200],
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
                         ),
                       ),
-                      Divider(),
-                    ],
-                  );
-                }
-
-                if (state is ProductsLoaded) {
-                  return ListView.builder(
-                    itemCount: state.products.length,
-                    itemBuilder: (context, index) {
-                      final product = state.products[index];
-                      return Card(
-                        margin: EdgeInsets.all(8),
-                        child: ListTile(
-                          leading: Image.network(product.imageUrl),
-                          title: Text(product.name),
-                          subtitle: Text(
-                            'Price: \$${product.price.toStringAsFixed(2)}',
-                          ),
-                          trailing: Icon(Icons.shopping_cart),
-                          onTap: () {
-                            // Implement add to cart logic
-                          },
-                        ),
-                      );
-                    },
-                  );
-                }
-
-                if (state is SearchError) {
-                  return Center(child: Text(state.message));
-                }
-
-                return Center(child: CircularProgressIndicator());
-              },
+                    );
+                  }).toList(),
             ),
-          ),
-        ],
-      ),
+          );
+        }
+
+        return const SizedBox.shrink(); // Hide if no categories are available
+      },
+    );
+  }
+
+  Widget _buildProductList() {
+    return BlocBuilder<SearchBloc, SearchState>(
+      builder: (context, state) {
+        if (state is SearchDataLoaded) {
+          if (state.displayedProducts.isEmpty) {
+            return const Center(
+              child: Text("No products found", style: TextStyle(fontSize: 16)),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: state.displayedProducts.length,
+            itemBuilder: (context, index) {
+              final product = state.displayedProducts[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 3,
+                child: ListTile(
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      product.images.isNotEmpty ? product.images[0] : "",
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              const Icon(Icons.image_not_supported),
+                    ),
+                  ),
+                  title: Text(
+                    product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    'Price: \$${product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(color: Colors.green),
+                  ),
+                  trailing: const Icon(Icons.shopping_cart, color: Colors.blue),
+                  onTap: () {
+                    // Implement add to cart logic
+                  },
+                ),
+              );
+            },
+          );
+        }
+
+        if (state is SearchError) {
+          return Center(
+            child: Text(state.message, style: TextStyle(color: Colors.red)),
+          );
+        }
+
+        return const Center(child: CircularProgressIndicator());
+      },
     );
   }
 }
