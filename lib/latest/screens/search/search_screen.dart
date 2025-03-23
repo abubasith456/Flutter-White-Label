@@ -149,16 +149,41 @@ class _SearchScreenState extends State<SearchScreen> {
                 elevation: 3,
                 child: ListTile(
                   leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      product.images.isNotEmpty ? product.images[0] : "",
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      errorBuilder:
-                          (context, error, stackTrace) =>
-                              const Icon(Icons.image_not_supported),
-                    ),
+                    borderRadius: BorderRadius.circular(
+                      8,
+                    ), // Optional: Add rounded corners
+                    child:
+                        product.images.isNotEmpty
+                            ? Image.network(
+                              product.images[0],
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (context, error, stackTrace) =>
+                                      _fallbackImage(),
+                              loadingBuilder: (
+                                context,
+                                child,
+                                loadingProgress,
+                              ) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                (loadingProgress
+                                                        .expectedTotalBytes ??
+                                                    1)
+                                            : null,
+                                  ),
+                                );
+                              },
+                            )
+                            : _fallbackImage(), // Show placeholder if no image is available
                   ),
                   title: Text(
                     product.name,
@@ -186,6 +211,19 @@ class _SearchScreenState extends State<SearchScreen> {
 
         return const Center(child: CircularProgressIndicator());
       },
+    );
+  }
+
+  Widget _fallbackImage() {
+    return Container(
+      width: 60,
+      height: 60,
+      color: Colors.grey[300], // Light grey background
+      child: const Icon(
+        Icons.image_not_supported,
+        size: 30,
+        color: Colors.grey,
+      ),
     );
   }
 }

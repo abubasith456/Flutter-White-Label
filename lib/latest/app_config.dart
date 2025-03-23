@@ -10,6 +10,7 @@ class AppConfig {
       'primaryButtonColor': Colors.blue,
       'primaryButtonTextColor': Colors.white,
       'primaryColor': Colors.blue,
+      'primaryTextColor': Colors.black,
       'appName': 'Brand A App',
       'logo': 'assets/brand_a_logo.png',
     },
@@ -17,6 +18,7 @@ class AppConfig {
       'primaryButtonColor': Colors.green,
       'primaryButtonTextColor': Colors.white,
       'primaryColor': Colors.lightGreen,
+      'primaryTextColor': Colors.black,
       'appName': 'Brand B App',
       'logo': 'assets/brand_b_logo.png',
     },
@@ -38,4 +40,7 @@ class AppConfig {
   static String get appName => _brandConfig['appName'] as String;
 
   static String get logo => _brandConfig['logo'] as String;
+
+  static Color get primaryTextColor =>
+      _brandConfig['primaryTextColor'] as Color;
 }
