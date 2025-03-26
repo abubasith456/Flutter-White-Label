@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CustomProductCard extends StatelessWidget {
   final String image;
   final String title;
   final String price;
-  final VoidCallback onTap; // Add onTap callback
+  final VoidCallback onTap;
 
   const CustomProductCard({
     super.key,
     required this.image,
     required this.title,
     required this.price,
-    required this.onTap, // Pass the onTap callback
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap, // Call onTap when the card is tapped
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -39,33 +41,30 @@ class CustomProductCard extends StatelessWidget {
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
                 ),
-                child: Image.network(
-                  image,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder:
-                      (context, error, stackTrace) => Container(
+                child: kIsWeb
+                    ? Image.network(
+                        image,
+                        fit: BoxFit.cover,
                         width: double.infinity,
-                        color: Colors.grey[300],
-                        child: const Icon(
-                          Icons.broken_image,
-                          size: 50,
-                          color: Colors.grey,
-                        ),
+                        errorBuilder: (context, error, stackTrace) => _errorImageWidget(),
+                      )
+                    : Image.network(
+                        image,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) => _errorImageWidget(),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                  : null,
+                            ),
+                          );
+                        },
                       ),
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value:
-                            loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    (loadingProgress.expectedTotalBytes ?? 1)
-                                : null,
-                      ),
-                    );
-                  },
-                ),
               ),
             ),
             Padding(
@@ -79,6 +78,18 @@ class CustomProductCard extends StatelessWidget {
             const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _errorImageWidget() {
+    return Container(
+      width: double.infinity,
+      color: Colors.grey[300],
+      child: const Icon(
+        Icons.broken_image,
+        size: 50,
+        color: Colors.grey,
       ),
     );
   }

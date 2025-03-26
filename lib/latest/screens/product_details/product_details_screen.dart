@@ -5,6 +5,7 @@ import 'package:demo_app/latest/app_config.dart';
 import 'package:demo_app/latest/components/base/custom_button.dart';
 import 'package:demo_app/latest/models/enums/product_size_type.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Product product;
@@ -30,7 +31,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    // Set default size based on `sizeType`
     print("Size Type: ${widget.product.sizes}");
     switch (widget.sizeType) {
       case SizeType.string:
@@ -62,11 +62,44 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   floating: false,
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(
-                    background: Image.network(
-                      widget.product.images[0],
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    ),
+                    background:
+                        kIsWeb
+                            ? Image.network(
+                              widget.product.images[0],
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder:
+                                  (context, error, stackTrace) =>
+                                      _errorImageWidget(),
+                            )
+                            : Image.network(
+                              widget.product.images[0],
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              loadingBuilder: (
+                                context,
+                                child,
+                                loadingProgress,
+                              ) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                (loadingProgress
+                                                        .expectedTotalBytes ??
+                                                    1)
+                                            : null,
+                                  ),
+                                );
+                              },
+                              errorBuilder:
+                                  (context, error, stackTrace) =>
+                                      _errorImageWidget(),
+                            ),
                   ),
                   backgroundColor: AppConfig.primaryColor,
                 ),
@@ -164,6 +197,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _errorImageWidget() {
+    return Container(
+      width: double.infinity,
+      color: Colors.grey[300],
+      child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
     );
   }
 
