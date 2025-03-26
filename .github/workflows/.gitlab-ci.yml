@@ -1,12 +1,12 @@
 workflow:
   rules:
-    - if: '$CI_COMMIT_BRANCH'  # Runs for all branches
+    - if: '$CI_PIPELINE_SOURCE == "push"'  # Run pipeline on push
 
 stages:
   - build
   - deploy
 
-image: cirrusci/flutter:latest
+image: cirrusci/flutter:latest  # Use latest Flutter Docker image
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
