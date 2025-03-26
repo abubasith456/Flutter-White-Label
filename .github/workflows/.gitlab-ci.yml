@@ -1,38 +1,22 @@
-workflow:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'  # Run pipeline on push
+image: cirrusci/flutter:latest
 
 stages:
   - build
   - deploy
 
-image: cirrusci/flutter:latest  # Use latest Flutter Docker image
-
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - .pub-cache/
-    - build/web/
-
 before_script:
-  - flutter clean
+  - flutter channel beta
+  - flutter upgrade
+  - flutter config --enable-web
   - flutter pub get
 
-build_web:
+build:
   stage: build
   script:
-    - flutter build web --release --base-href /$CI_PROJECT_NAME/
-  artifacts:
-    paths:
-      - build/web
-    expire_in: 1 week
-
-deploy_gitlab_pages:
-  stage: deploy
-  script:
-    - mv build/web public
+    - flutter build web
+    - cp -r build/web public
   artifacts:
     paths:
       - public
   only:
-    - main  # Deploy only from the main branch
+    - main
