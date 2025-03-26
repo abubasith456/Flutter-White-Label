@@ -7,6 +7,7 @@ class Product {
   final double price;
   final Category category;
   final int stock;
+  final List<ProductSize> sizes;
   final List<String> images;
   final String? offerId;
   final String createdAt;
@@ -18,6 +19,7 @@ class Product {
     required this.price,
     required this.category,
     required this.stock,
+    required this.sizes,
     required this.images,
     this.offerId,
     required this.createdAt,
@@ -31,6 +33,11 @@ class Product {
       price: (json['price'] ?? 0).toDouble(),
       category: Category.fromJson(json['category'] ?? {}),
       stock: json['stock'] ?? 0,
+      sizes:
+          (json['sizes'] as List<dynamic>?)
+              ?.map((size) => ProductSize.fromJson(size))
+              .toList() ??
+          [],
       images: List<String>.from(
         (json['images'] as List<dynamic>?)?.isEmpty ?? true
             ? [
@@ -54,9 +61,37 @@ class Product {
       'price': price,
       'category': category.toJson(),
       'stock': stock,
+      'sizes': sizes.map((size) => size.toJson()).toList(),
       'images': images,
       'offerId': offerId,
       'createdAt': createdAt,
     };
+  }
+}
+
+class ProductSize {
+  final String label;
+  final double price;
+  final int stock;
+  final String id;
+
+  ProductSize({
+    required this.label,
+    required this.price,
+    required this.stock,
+    required this.id,
+  });
+
+  factory ProductSize.fromJson(Map<String, dynamic> json) {
+    return ProductSize(
+      label: json['label'] ?? '',
+      price: (json['price'] ?? 0).toDouble(),
+      stock: json['stock'] ?? 0,
+      id: json['_id'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'label': label, 'price': price, 'stock': stock, '_id': id};
   }
 }

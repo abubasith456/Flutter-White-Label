@@ -1,4 +1,3 @@
-import 'package:demo_app/latest/components/base/custom_appbar.dart';
 import 'package:demo_app/latest/models/api_model/product_model.dart';
 import 'package:demo_app/latest/screens/cart/components/block/cart_block.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +31,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void initState() {
     super.initState();
     // Set default size based on `sizeType`
+    print("Size Type: ${widget.product.sizes}");
     switch (widget.sizeType) {
       case SizeType.string:
         selectedSize =
@@ -114,7 +114,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   const SizedBox(height: 16),
 
-                  if (widget.sizeType != SizeType.none)
+                  if (widget.product.sizes.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -168,38 +168,42 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   List<Widget> _buildSizeOptions() {
-    List<String> sizeOptions = [];
-
-    switch (widget.sizeType) {
-      case SizeType.none:
-        sizeOptions = sizeOptionsNone;
-        break;
-      case SizeType.string:
-        sizeOptions = sizeOptionsString;
-        break;
-      case SizeType.number:
-        sizeOptions = sizeOptionsNumber.map((size) => size.toString()).toList();
-        break;
+    if (widget.product.sizes.isEmpty) {
+      return [];
     }
-
-    return sizeOptions.map((size) {
+    return widget.product.sizes.map((size) {
       return _buildSizeOption(size);
     }).toList();
   }
 
-  Widget _buildSizeOption(String size) {
+  Widget _buildSizeOption(ProductSize size) {
+    bool isOutOfStock = size.stock == 0;
+
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedSize = size;
-        });
-      },
+      onTap:
+          isOutOfStock
+              ? null
+              : () {
+                setState(() {
+                  selectedSize = size.label;
+                });
+              },
       child: Chip(
-        label: Text(size),
+        label: Text(
+          '${size.label} (${size.stock > 0 ? "In Stock" : "Out of Stock"})',
+        ),
         backgroundColor:
-            selectedSize == size ? AppConfig.primaryColor : Colors.grey[300],
+            isOutOfStock
+                ? Colors.grey[300] // Disabled look
+                : (selectedSize == size.label
+                    ? AppConfig.primaryColor
+                    : Colors.grey[300]),
         labelStyle: TextStyle(
-          color: selectedSize == size ? Colors.white : Colors.black,
+          color:
+              isOutOfStock
+                  ? Colors
+                      .grey // Greyed-out for out-of-stock sizes
+                  : (selectedSize == size.label ? Colors.white : Colors.black),
         ),
       ),
     );

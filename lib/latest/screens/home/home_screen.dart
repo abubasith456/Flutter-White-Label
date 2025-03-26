@@ -59,7 +59,17 @@ class HomeScreen extends StatelessWidget {
       elevation: 0,
       leading: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: CircleAvatar(backgroundImage: NetworkImage(profilePic)),
+        child: BlocBuilder<ProfileBloc, ProfileState>(
+          builder: (context, profileState) {
+            if (profileState is ProfileLoaded &&
+                profileState.user.image.isNotEmpty) {
+              profilePic =
+                  profileState.user.image; // Update with actual profile picture
+            }
+
+            return CircleAvatar(backgroundImage: NetworkImage(profilePic));
+          },
+        ),
       ),
       title: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, profileState) {
@@ -190,96 +200,13 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ),
-        // Container(
-        //   height: count == 1 ? 100 : 200, // Adjusted height for 2 rows
-        //   margin: const EdgeInsets.symmetric(vertical: 10),
-        //   child: GridView.builder(
-        //     scrollDirection: Axis.horizontal,
-        //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        //       crossAxisCount: count, // Creates two rows
-        //       mainAxisSpacing: 10,
-        //       crossAxisSpacing: 10,
-        //       childAspectRatio: 1.0, // Square-like items
-        //     ),
-        //     itemCount: categories.length,
-        //     itemBuilder: (context, index) {
-        //       return GestureDetector(
-        //         onTap: () {
-        //           Navigator.pushNamed(
-        //             context,
-        //             productsScreenRoute,
-        //             arguments: ProductsArguments(
-        //               category: categories[index].name,
-        //               categoryId: categories[index].id,
-        //             ),
-        //           );
-        //         },
-        //         child: Column(
-        //           children: [
-        //             // Replace Icon with Image
-        //             CircleAvatar(
-        //               radius: 30,
-        //               backgroundColor: Colors.blueAccent.withOpacity(0.2),
-        //               child: ClipOval(
-        //                 child: Image.network(
-        //                   categories[index]
-        //                       .image, // Replace with the correct field name for the image URL
-        //                   fit:
-        //                       BoxFit
-        //                           .cover, // Ensures the image fits the CircleAvatar shape
-        //                   width: 60, // Adjust as needed
-        //                   height: 60, // Adjust as needed
-        //                   loadingBuilder: (
-        //                     BuildContext context,
-        //                     Widget child,
-        //                     ImageChunkEvent? loadingProgress,
-        //                   ) {
-        //                     if (loadingProgress == null) {
-        //                       return child;
-        //                     } else {
-        //                       return Center(
-        //                         child: CircularProgressIndicator(
-        //                           value:
-        //                               loadingProgress.expectedTotalBytes != null
-        //                                   ? loadingProgress
-        //                                           .cumulativeBytesLoaded /
-        //                                       (loadingProgress
-        //                                               .expectedTotalBytes ??
-        //                                           1)
-        //                                   : null,
-        //                         ),
-        //                       );
-        //                     }
-        //                   },
-        //                   errorBuilder: (context, error, stackTrace) {
-        //                     return Icon(
-        //                       Icons.error,
-        //                     ); // Show an error icon if the image fails to load
-        //                   },
-        //                 ),
-        //               ),
-        //             ),
-        //             const SizedBox(height: 5),
-        //             Text(
-        //               categories[index].name,
-        //               style: const TextStyle(
-        //                 fontSize: 14,
-        //                 fontWeight: FontWeight.w500,
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       );
-        //     },
-        //   ),
-        // ),
       ],
     );
   }
 
   Widget _buildNewProducts(List<Product> products) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 80),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

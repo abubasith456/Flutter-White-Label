@@ -29,9 +29,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _emailController = TextEditingController(text: profileState.user.email);
       _dobController = TextEditingController(text: profileState.user.dob);
       profilePicUrl =
-          profileState.user.images.isNotEmpty
-              ? profileState.user.images[0]
-              : "";
+          profileState.user.image.isNotEmpty ? profileState.user.image : "";
       userId = profileState.user.id; // Assign userId here
       print("Profile: $profilePicUrl");
     }

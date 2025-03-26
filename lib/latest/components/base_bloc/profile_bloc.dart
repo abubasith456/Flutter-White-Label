@@ -148,7 +148,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
                 name: event.username,
                 email: event.email,
                 mobile: "",
-                images: [],
+                image: "",
                 dob: event.dob,
                 addresses: [],
               ),

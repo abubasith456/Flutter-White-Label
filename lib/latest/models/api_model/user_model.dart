@@ -4,7 +4,7 @@ class User {
   final String email;
   final String? mobile; // Making mobile nullable (optional)
   final String dob;
-  final List<String> images;
+  final String image;
   final List<String> addresses;
 
   User({
@@ -13,7 +13,7 @@ class User {
     required this.email,
     this.mobile, // Make mobile optional
     required this.dob,
-    required this.images,
+    required this.image,
     required this.addresses,
   });
 
@@ -24,7 +24,7 @@ class User {
       'email': email,
       'mobile': mobile,
       'dob': dob,
-      'images': images,
+      'image': image,
       'addresses': addresses,
     };
   }
@@ -36,13 +36,9 @@ class User {
       email: json['email'] ?? '', // Default to empty string if null
       mobile: json['mobile'], // Optional mobile field (can be null)
       dob: json['dob'] ?? '', // Default to empty string if null
-      images: List<String>.from(
-        json['images'] is List && json['images'].isNotEmpty
-            ? json['images']
-            : [
-              "https://i.pinimg.com/474x/fa/d5/e7/fad5e79954583ad50ccb3f16ee64f66d.jpg",
-            ],
-      ), // Default to a predefined image if null or empty
+      image:
+          json['image'] ??
+          "https://i.pinimg.com/474x/fa/d5/e7/fad5e79954583ad50ccb3f16ee64f66d.jpg", // Default to a predefined image if null or empty
       addresses: List<String>.from(
         json['addresses'] is List && json['addresses'].isNotEmpty
             ? json['addresses']
