@@ -21,7 +21,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --base-href /<REPO_NAME>/
+        run: flutter build web --release --base-href /Flutter-White-Label/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
