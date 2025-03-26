@@ -1,0 +1,34 @@
+image: cirrusci/flutter:latest  # Uses a pre-configured Flutter Docker image
+
+stages:
+  - build
+  - deploy
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .pub-cache/  # Cache pub dependencies
+    - build/web/   # Cache built web files
+
+before_script:
+  - flutter clean
+  - flutter pub get
+
+build_web:
+  stage: build
+  script:
+    - flutter build web --release --base-href /$CI_PROJECT_NAME/  # Build for Web
+  artifacts:
+    paths:
+      - build/web
+    expire_in: 1 week
+
+deploy_gitlab_pages:
+  stage: deploy
+  script:
+    - mv build/web public  # GitLab Pages requires "public" folder
+  artifacts:
+    paths:
+      - public  # Deploy the built web app
+  only:
+    - main  # Deploy only when code is merged into the main branch
