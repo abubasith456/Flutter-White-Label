@@ -1,14 +1,18 @@
-image: cirrusci/flutter:latest  # Uses a pre-configured Flutter Docker image
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH'  # Runs for all branches
 
 stages:
   - build
   - deploy
 
+image: cirrusci/flutter:latest
+
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - .pub-cache/  # Cache pub dependencies
-    - build/web/   # Cache built web files
+    - .pub-cache/
+    - build/web/
 
 before_script:
   - flutter clean
@@ -17,7 +21,7 @@ before_script:
 build_web:
   stage: build
   script:
-    - flutter build web --release --base-href /$CI_PROJECT_NAME/  # Build for Web
+    - flutter build web --release --base-href /$CI_PROJECT_NAME/
   artifacts:
     paths:
       - build/web
@@ -26,9 +30,9 @@ build_web:
 deploy_gitlab_pages:
   stage: deploy
   script:
-    - mv build/web public  # GitLab Pages requires "public" folder
+    - mv build/web public
   artifacts:
     paths:
-      - public  # Deploy the built web app
+      - public
   only:
-    - main  # Deploy only when code is merged into the main branch
+    - main  # Deploy only from the main branch
