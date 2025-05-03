@@ -1,29 +1,44 @@
-import 'package:demo_app/latest/components/base_bloc/profile_bloc.dart';
-import 'package:demo_app/latest/repository/auth_repo/auth_repository.dart';
-import 'package:demo_app/latest/screens/address/components/bloc/adress_bloc.dart';
-import 'package:demo_app/latest/screens/cart/components/block/cart_block.dart';
-import 'package:demo_app/latest/screens/search/components/bloc/search_bloc.dart';
-import 'package:demo_app/latest/services/service_locator.dart';
-import 'package:flutter/material.dart';
-import 'package:demo_app/latest/route/route_constants.dart';
-import 'package:demo_app/latest/route/router.dart' as router;
+import 'package:demo_app/components/base_bloc/profile_bloc.dart';
+import 'package:demo_app/repository/auth_repo/auth_repository.dart';
+import 'package:demo_app/screens/address/components/bloc/adress_bloc.dart';
+import 'package:demo_app/screens/cart/components/block/cart_block.dart';
+import 'package:demo_app/screens/search/components/bloc/search_bloc.dart';
+import 'package:demo_app/services/service_locator.dart';
 import 'package:demo_app/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:demo_app/route/route_constants.dart';
+import 'package:demo_app/route/router.dart' as router;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Set default status bar settings for the entire app
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
   await setupServiceLocator();
 
   runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => ProfileBloc(sl<AuthRepository>())),
-        BlocProvider(create: (context) => sl<AddressBloc>()),
-        BlocProvider(create: (context) => sl<CartBloc>()..add(LoadCart())),
-        BlocProvider(create: (context) => sl<SearchBloc>()),
-      ],
-      child: MyApp(),
+    MultiRepositoryProvider(
+      providers: [RepositoryProvider.value(value: sl<SharedPreferences>())],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => ProfileBloc(sl<AuthRepository>())),
+          BlocProvider(create: (context) => sl<AddressBloc>()),
+          BlocProvider(create: (context) => sl<CartBloc>()..add(LoadCart())),
+          BlocProvider(create: (context) => sl<SearchBloc>()),
+        ],
+        child: MyApp(),
+      ),
     ),
   );
 }

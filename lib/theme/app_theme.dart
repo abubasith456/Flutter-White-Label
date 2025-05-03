@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:demo_app/theme/button_theme.dart';
-import 'package:demo_app/theme/input_decoration_theme.dart';
-import '../utils/constants.dart';
-import 'checkbox_themedata.dart';
-import 'theme_data.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart'; // If using Google Fonts
 
 class AppTheme {
   static ThemeData lightTheme(BuildContext context) {
+    // We'll let main.dart handle the system UI overlay style
+    // to ensure consistency across the app
+
     return ThemeData(
-      brightness: Brightness.light,
-      fontFamily: "Plus Jakarta",
-      primarySwatch: primaryMaterialColor,
-      primaryColor: primaryColor,
+      fontFamily: 'CustomFont', // Use your custom font if added in pubspec.yaml
+      textTheme: GoogleFonts.poppinsTextTheme(), // Or use Google Fonts
+      primarySwatch: Colors.blue,
       scaffoldBackgroundColor: Colors.white,
-      iconTheme: const IconThemeData(color: blackColor),
-      textTheme: const TextTheme(bodyMedium: TextStyle(color: blackColor40)),
-      elevatedButtonTheme: elevatedButtonThemeData,
-      textButtonTheme: textButtonThemeData,
-      outlinedButtonTheme: outlinedButtonTheme(),
-      inputDecorationTheme: lightInputDecorationTheme,
-      checkboxTheme: checkboxThemeData.copyWith(
-        side: const BorderSide(color: blackColor40),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.blue,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(
+          color: Colors.black,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      appBarTheme: appBarLightTheme,
-      scrollbarTheme: scrollbarThemeData,
-      dataTableTheme: dataTableLightThemeData,
     );
   }
-
-  // Dark theme is inclided in the Full template
 }
