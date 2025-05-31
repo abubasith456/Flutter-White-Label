@@ -11,6 +11,7 @@ class CustomButton extends StatelessWidget {
   final double height; // Static height for the button
   final Icon? icon; // Optional icon parameter
   final double? fontSize; // Optional font size parameter for smaller screens
+  final bool isEnabled; // Toggle for button enabled/disabled state
 
   const CustomButton({
     super.key,
@@ -23,6 +24,7 @@ class CustomButton extends StatelessWidget {
     this.height = 60.0, // Default height is set to 60.0
     this.icon, // Optional icon
     this.fontSize, // Optional font size
+    this.isEnabled = true, // Default value is true (enabled)
   });
 
   @override
@@ -31,27 +33,32 @@ class CustomButton extends StatelessWidget {
       width: width,
       height: height, // Fixed height for the button
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isEnabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
           backgroundColor:
               isGradient ? null : (color ?? AppConfig.primaryButtonColor),
-          elevation: 6, // Adds shadow effect
+          elevation: isEnabled ? 6 : 0, // Reduced elevation when disabled
           shadowColor: Colors.black45, // Soft shadow
+          disabledBackgroundColor: Colors.grey.shade300, // Color when disabled
+          disabledForegroundColor:
+              Colors.grey.shade600, // Text color when disabled
         ).copyWith(
           backgroundColor:
-              isGradient
-                  ? WidgetStateProperty.all(Colors.transparent)
-                  : WidgetStateProperty.all(
-                    color ?? AppConfig.primaryButtonColor,
-                  ),
+              isEnabled
+                  ? (isGradient
+                      ? WidgetStateProperty.all(Colors.transparent)
+                      : WidgetStateProperty.all(
+                        color ?? AppConfig.primaryButtonColor,
+                      ))
+                  : WidgetStateProperty.all(Colors.grey.shade300),
           overlayColor: WidgetStateProperty.all(Colors.white24), // Press effect
         ),
         child: Ink(
           decoration:
-              isGradient
+              isGradient && isEnabled
                   ? BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -59,6 +66,11 @@ class CustomButton extends StatelessWidget {
                         AppConfig.primaryColor,
                       ],
                     ),
+                    borderRadius: BorderRadius.circular(borderRadius),
+                  )
+                  : isGradient && !isEnabled
+                  ? BoxDecoration(
+                    color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(borderRadius),
                   )
                   : null,
@@ -90,7 +102,10 @@ class CustomButton extends StatelessWidget {
                       height: 1.2, // Reduced height for smaller screens
                       leadingDistribution: TextLeadingDistribution.even,
                       textBaseline: TextBaseline.alphabetic,
-                      color: AppConfig.primaryButtonTextColor,
+                      color:
+                          isEnabled
+                              ? AppConfig.primaryButtonTextColor
+                              : Colors.grey.shade600,
                     ),
                   ),
                 ],

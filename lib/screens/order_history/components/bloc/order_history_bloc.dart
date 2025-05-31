@@ -44,11 +44,21 @@ class OrderHistoryBloc extends Bloc<OrderHistoryEvent, OrderHistoryState> {
     Emitter<OrderHistoryState> emit,
   ) async {
     emit(OrderHistoryLoading());
-    final activeUser = pref.getUser();
+    final userId = pref.getUser()?.id ?? '1';
+    // pref.getUser();
+    print("OrderHistoryLoading called!...... $userId");
     try {
-      final orders = await orderRepository.getUserOrders(activeUser?.id ?? '1');
-      emit(OrderHistoryLoaded(orders.data ?? []));
+      final orders = await orderRepository.getUserOrders(userId);
+      print("OrderHistoryLoading Result!......${orders.data}");
+
+      if (orders.success && orders.data != null) {
+        emit(OrderHistoryLoaded(orders.data!));
+      } else {
+        // If the API call was successful but returned no data
+        emit(OrderHistoryLoaded([]));
+      }
     } catch (e) {
+      print("Error in _onLoadOrders: ${e.toString()}");
       emit(OrderHistoryError('Failed to load orders: $e'));
     }
   }
@@ -60,14 +70,23 @@ class OrderHistoryBloc extends Bloc<OrderHistoryEvent, OrderHistoryState> {
     try {
       // Keep the current state while processing
       final activeUser = pref.getUser();
+      final userId = activeUser?.id ?? '1';
 
       // Cancel the order
       await orderRepository.cancelOrder(event.orderId);
+      print("Order cancelled successfully: ${event.orderId}");
 
       // Reload orders to get the updated list
-      final orders = await orderRepository.getUserOrders(activeUser?.id ?? '1');
-      emit(OrderHistoryLoaded(orders.data ?? []));
+      final orders = await orderRepository.getUserOrders(userId);
+
+      if (orders.success && orders.data != null) {
+        emit(OrderHistoryLoaded(orders.data!));
+      } else {
+        // If the API call was successful but returned no data
+        emit(OrderHistoryLoaded([]));
+      }
     } catch (e) {
+      print("Error in _onCancelOrder: ${e.toString()}");
       emit(OrderHistoryError('Failed to cancel order: $e'));
     }
   }

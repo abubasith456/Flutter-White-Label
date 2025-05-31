@@ -1,5 +1,6 @@
 import 'package:demo_app/components/base/custom_appbar.dart';
 import 'package:demo_app/components/base/custom_button.dart';
+import 'package:demo_app/components/base/network_image_with_error.dart';
 import 'package:demo_app/models/cart_model.dart';
 import 'package:demo_app/repository/address_repository.dart';
 import 'package:demo_app/screens/address/components/bloc/adress_bloc.dart';
@@ -86,9 +87,11 @@ class _CartScreenState extends State<CartScreen> {
               return Card(
                 margin: EdgeInsets.all(8),
                 child: ListTile(
-                  leading: Image.network(
-                    cartItem.product.images[0],
-                  ), // Assuming Product has imageUrl
+                  leading: NetworkImageWithError(
+                    imageUrl: cartItem.product.images[0],
+                    width: 80,
+                    height: 80,
+                  ),
                   title: Text(
                     cartItem.product.name,
                   ), // Assuming Product has name
@@ -148,8 +151,9 @@ class _CartScreenState extends State<CartScreen> {
           return Padding(
             padding: const EdgeInsets.all(10),
             child: SizedBox(
-              height: 70, // Set a fixed height for the button
+              height: 55, // Set a fixed height for the button
               child: CustomButton(
+                isEnabled: state.cartItems.isNotEmpty,
                 text: 'Checkout (\Rs.${totalAmount.toStringAsFixed(2)})',
                 onPressed: () {
                   // Navigate to order confirmation screen

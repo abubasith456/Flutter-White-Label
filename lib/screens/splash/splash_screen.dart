@@ -82,9 +82,9 @@ class _AnimatedSplashScreenState extends State<AnimatedSplashScreen>
                 child: FadeTransition(
                   opacity: _animation,
                   child: SvgPicture.asset(
-                    "assets/logo/Shoplon.svg",
-                    width: 50,
-                    height: 50,
+                    "assets/logo/musfi_logo_new.svg",
+                    width: 100,
+                    height: 100,
                   ),
                 ),
               ),

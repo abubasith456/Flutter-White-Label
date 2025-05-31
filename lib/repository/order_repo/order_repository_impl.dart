@@ -38,9 +38,13 @@ class OrderRepositoryImpl implements OrderRepository {
 
       if (response.statusCode == 201) {
         if (responseData['success']) {
-          return ApiResponse<OrderModel>.fromJson(
-            responseData,
-            (data) => OrderModel.fromJson(data['order']),
+          var orderData = responseData['data']['order'];
+          var order = OrderModel.fromJson(Map<String, dynamic>.from(orderData));
+
+          return ApiResponse<OrderModel>(
+            success: responseData['success'],
+            message: responseData['message'] ?? 'Order created successfully',
+            data: order,
           );
         } else {
           throw Exception(
@@ -67,22 +71,40 @@ class OrderRepositoryImpl implements OrderRepository {
   @override
   Future<ApiResponse<List<OrderModel>>> getUserOrders(String userId) async {
     try {
-      Response response = await dio.get(
-        '$orderBaseUrl/orders/$userId',
-        options: Options(headers: _authHeaders),
-      );
-
+      Response response = await dio.get('$orderBaseUrl/user/$userId');
       final responseData = response.data;
-
       if (response.statusCode == 200) {
         if (responseData['success']) {
-          return ApiResponse<List<OrderModel>>.fromJson(
-            responseData,
-            (data) =>
-                (data['orders'] as List)
-                    .map((json) => OrderModel.fromJson(json))
-                    .toList(),
+          List<OrderModel> orders = [];
+
+          // Handle case where 'order' is a single object (not a list)
+          if (responseData['data'] != null &&
+              responseData['data']['orders'] != null) {
+            var ordersData = responseData['data']['orders'];
+
+            if (ordersData is List) {
+              orders =
+                  ordersData
+                      .map(
+                        (item) => OrderModel.fromJson(
+                          Map<String, dynamic>.from(item),
+                        ),
+                      )
+                      .toList();
+            } else if (ordersData is Map) {
+              orders = [
+                OrderModel.fromJson(Map<String, dynamic>.from(ordersData)),
+              ];
+            }
+          }
+
+          var result = ApiResponse<List<OrderModel>>(
+            success: responseData['success'],
+            message: responseData['message'] ?? 'Orders loaded successfully',
+            data: orders,
           );
+
+          return result;
         } else {
           throw Exception(responseData['message'] ?? 'Failed to load orders');
         }
@@ -90,6 +112,7 @@ class OrderRepositoryImpl implements OrderRepository {
         throw Exception('Failed: Server returned an error.');
       }
     } on DioException catch (e) {
+      print("DioException: $e");
       if (e.response != null) {
         final responseData = e.response!.data;
         throw Exception(
@@ -98,6 +121,7 @@ class OrderRepositoryImpl implements OrderRepository {
       }
       throw Exception('Failed: DioException: ${e.message}');
     } catch (e) {
+      print("Error in getUserOrders: $e");
       throw Exception('Failed: $e');
     }
   }
@@ -115,9 +139,13 @@ class OrderRepositoryImpl implements OrderRepository {
 
       if (response.statusCode == 200) {
         if (responseData['success']) {
-          return ApiResponse<OrderModel>.fromJson(
-            responseData,
-            (data) => OrderModel.fromJson(data['order']),
+          var orderData = responseData['data']['order'];
+          var order = OrderModel.fromJson(Map<String, dynamic>.from(orderData));
+
+          return ApiResponse<OrderModel>(
+            success: responseData['success'],
+            message: responseData['message'] ?? 'Order loaded successfully',
+            data: order,
           );
         } else {
           throw Exception(responseData['message'] ?? 'Failed to load order');
@@ -155,9 +183,13 @@ class OrderRepositoryImpl implements OrderRepository {
 
       if (response.statusCode == 200) {
         if (responseData['success']) {
-          return ApiResponse<OrderModel>.fromJson(
-            responseData,
-            (data) => OrderModel.fromJson(data['order']),
+          var orderData = responseData['data']['order'];
+          var order = OrderModel.fromJson(Map<String, dynamic>.from(orderData));
+
+          return ApiResponse<OrderModel>(
+            success: responseData['success'],
+            message: responseData['message'] ?? 'Order updated successfully',
+            data: order,
           );
         } else {
           throw Exception(responseData['message'] ?? 'Failed to update order');
@@ -193,9 +225,13 @@ class OrderRepositoryImpl implements OrderRepository {
 
       if (response.statusCode == 200) {
         if (responseData['success']) {
-          return ApiResponse<OrderModel>.fromJson(
-            responseData,
-            (data) => OrderModel.fromJson(data['order']),
+          var orderData = responseData['data']['order'];
+          var order = OrderModel.fromJson(Map<String, dynamic>.from(orderData));
+
+          return ApiResponse<OrderModel>(
+            success: responseData['success'],
+            message: responseData['message'] ?? 'Order cancelled successfully',
+            data: order,
           );
         } else {
           throw Exception(responseData['message'] ?? 'Failed to cancel order');

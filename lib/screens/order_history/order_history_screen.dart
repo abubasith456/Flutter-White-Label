@@ -1,5 +1,6 @@
 import 'package:demo_app/components/base/custom_appbar.dart';
 import 'package:demo_app/constants.dart';
+import 'package:demo_app/screens/order_details/order_details_screen.dart';
 import 'package:demo_app/screens/order_history/components/bloc/order_history_bloc.dart';
 import 'package:demo_app/services/service_locator.dart';
 import 'package:flutter/material.dart';
@@ -148,12 +149,26 @@ class OrderHistoryScreen extends StatelessWidget {
                             OutlinedButton(
                               onPressed: () {
                                 // Navigate to order details
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => OrderDetailsScreen(orderId: order.id!),
-                                //   ),
-                                // );
+                                if (order.id != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => OrderDetailsScreen(
+                                            orderId: order.id!,
+                                          ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Cannot view details: Order ID is missing",
+                                      ),
+                                      backgroundColor: errorColor,
+                                    ),
+                                  );
+                                }
                               },
                               style: OutlinedButton.styleFrom(
                                 minimumSize: const Size(double.infinity, 40),

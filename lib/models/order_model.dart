@@ -6,12 +6,16 @@ class OrderItem {
   final String sizeLabel;
   final int quantity;
   final double priceAtPurchase;
+  final String? productName;
+  final List<String>? productImages;
 
   OrderItem({
     required this.productId,
     required this.sizeLabel,
     required this.quantity,
     required this.priceAtPurchase,
+    this.productName,
+    this.productImages,
   });
 
   // Convert OrderItem to JSON
@@ -27,8 +31,25 @@ class OrderItem {
   // Create OrderItem from JSON
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     // Handle case where product might be an object or just an ID
-    final productId =
-        json['product'] is Map ? json['product']['_id'] : json['product'];
+    String productId;
+    String? productName;
+    List<String>? productImages;
+
+    if (json['product'] is Map) {
+      final productMap = json['product'] as Map<String, dynamic>;
+      productId = productMap['_id'].toString();
+      productName = productMap['name']?.toString();
+
+      // Handle images if available
+      if (productMap['images'] != null && productMap['images'] is List) {
+        productImages =
+            (productMap['images'] as List)
+                .map((img) => img.toString())
+                .toList();
+      }
+    } else {
+      productId = json['product'].toString();
+    }
 
     return OrderItem(
       productId: productId,
@@ -37,7 +58,9 @@ class OrderItem {
       priceAtPurchase:
           json['priceAtPurchase'] is int
               ? json['priceAtPurchase'].toDouble()
-              : json['priceAtPurchase'],
+              : double.parse(json['priceAtPurchase'].toString()),
+      productName: productName,
+      productImages: productImages,
     );
   }
 
@@ -55,6 +78,8 @@ class OrderItem {
       sizeLabel: sizeLabel,
       quantity: cartItem.quantity,
       priceAtPurchase: cartItem.product.price,
+      productName: cartItem.product.name,
+      productImages: cartItem.product.images,
     );
   }
 }
@@ -160,17 +185,27 @@ class OrderModel {
 
   // Create Order from JSON
   factory OrderModel.fromJson(Map<String, dynamic> json) {
+    // Handle userId which can be a Map or a String
+    String? userId;
+    if (json['userId'] is Map) {
+      userId = json['userId']['_id']?.toString();
+    } else {
+      userId = json['userId']?.toString();
+    }
+
     return OrderModel(
       id: json['_id'],
-      userId: json['userId'],
+      userId: userId,
       items:
           (json['items'] as List)
-              .map((item) => OrderItem.fromJson(item))
+              .map(
+                (item) => OrderItem.fromJson(Map<String, dynamic>.from(item)),
+              )
               .toList(),
       totalAmount:
-          (json['totalAmount'] is int)
+          json['totalAmount'] is int
               ? json['totalAmount'].toDouble()
-              : json['totalAmount'],
+              : double.parse(json['totalAmount'].toString()),
       shippingAddress: ShippingAddress.fromJson(json['shippingAddress']),
       status: json['status'],
       paymentStatus: json['paymentStatus'],

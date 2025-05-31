@@ -1,4 +1,5 @@
 import 'package:demo_app/app_config.dart';
+import 'package:demo_app/components/base/custom_alert_dialog.dart';
 import 'package:demo_app/components/base/custom_appbar.dart';
 import 'package:demo_app/components/base/custom_button.dart';
 import 'package:demo_app/models/address_model.dart';
@@ -404,74 +405,20 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
   }
 
   void _showOrderSuccessDialog(BuildContext context) {
-    final orderState = context.read<OrderBloc>().state;
-    final order = orderState.order;
-
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: AppConfig.primaryColor, size: 30),
-              const SizedBox(width: 8),
-              const Text('Order Placed Successfully!'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Thank you for your order. Your order has been placed successfully.',
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Order Total: Rs.${widget.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (order != null) ...[
-                Text(
-                  'Payment Method: ${orderState.paymentMethod}',
-                  style: const TextStyle(fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Delivery Address: ${order.shippingAddress.fullName}, ${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}',
-                  style: const TextStyle(fontSize: 14),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-              ],
-              const Text(
-                'You will receive a confirmation email shortly.',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Clear cart and navigate back to home
-                context.read<CartBloc>().add(ClearAllCart());
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              child: Text(
-                'Continue Shopping',
-                style: TextStyle(color: AppConfig.primaryColor),
-              ),
-            ),
-          ],
+        return CustomAlertDialog(
+          type: AlertType.success,
+          title: 'Order Placed Successfully!',
+          message:
+              '''Thank you for your order. Your order has been placed successfully.''',
+          onClose: () {
+            // Clear cart and navigate back to home
+            context.read<CartBloc>().add(ClearAllCart());
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          },
         );
       },
     );

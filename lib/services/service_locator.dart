@@ -14,6 +14,7 @@ import 'package:demo_app/screens/forgot/components/bloc/forgot_bloc.dart';
 import 'package:demo_app/screens/home/components/bloc/home_bloc.dart';
 import 'package:demo_app/screens/login/components/bloc/login_bloc.dart';
 import 'package:demo_app/screens/order_confirmation/bloc/order_bloc.dart';
+import 'package:demo_app/screens/order_details/components/order_details_bloc.dart';
 import 'package:demo_app/screens/order_history/components/bloc/order_history_bloc.dart';
 import 'package:demo_app/screens/products/components/bloc/product_bloc.dart';
 import 'package:demo_app/screens/search/components/bloc/search_bloc.dart';
@@ -99,5 +100,9 @@ Future<void> setupServiceLocator() async {
       pref: sl<SharedPrefService>(),
       orderRepository: sl<OrderRepository>(),
     ),
+  );
+
+  sl.registerFactory<OrderDetailsBloc>(
+    () => OrderDetailsBloc(orderRepository: sl<OrderRepository>()),
   );
 }
