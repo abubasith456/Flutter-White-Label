@@ -16,6 +16,7 @@ abstract class AuthRepository {
     String userId,
     String name,
     String dob,
-    String image,
+    String mobile,
+    String? profilePic,
   );
 }

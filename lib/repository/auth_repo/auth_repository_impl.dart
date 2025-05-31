@@ -3,13 +3,14 @@ import 'package:demo_app/models/api_model/user_model.dart';
 import 'package:demo_app/repository/api_model/api_response.dart';
 import 'package:demo_app/repository/auth_repo/auth_repository.dart';
 import 'package:dio/dio.dart';
+import 'dart:io';
 
 class AuthRepositoryImpl implements AuthRepository {
   final Dio dio;
 
   AuthRepositoryImpl({required this.dio});
 
-static const authBaseUrl = "$baseUrl/user";
+  static const authBaseUrl = "$baseUrl/user";
 
   @override
   Future<ApiResponse<User>> login(String email, String password) async {
@@ -40,12 +41,15 @@ static const authBaseUrl = "$baseUrl/user";
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        return ApiResponse<User>.fromJson(
-          responseData,
-          (data) => User.fromJson(data['user']),
+        if (e.response!.statusCode == 500) {
+          throw Exception('Server error: Please try again later');
+        }
+        throw Exception(
+          responseData['message'] ??
+              'Request failed: ${e.response!.statusCode}',
         );
       }
-      throw Exception('Failed: DioException: ${e.message}');
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Failed: $e');
     }
@@ -74,13 +78,15 @@ static const authBaseUrl = "$baseUrl/user";
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-
-        return ApiResponse<User>.fromJson(
-          responseData,
-          (data) => User.fromJson(data['user']),
+        if (e.response!.statusCode == 500) {
+          throw Exception('Server error: Please try again later');
+        }
+        throw Exception(
+          responseData['message'] ??
+              'Request failed: ${e.response!.statusCode}',
         );
       }
-      throw Exception('Failed: DioException: ${e.message}');
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Failed: $e');
     }
@@ -120,11 +126,15 @@ static const authBaseUrl = "$baseUrl/user";
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        return throw Exception(
-          responseData['message'] ?? 'Failed to complete the request',
+        if (e.response!.statusCode == 500) {
+          throw Exception('Server error: Please try again later');
+        }
+        throw Exception(
+          responseData['message'] ??
+              'Request failed: ${e.response!.statusCode}',
         );
       }
-      throw Exception('Failed: DioException: ${e.message}');
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Failed: $e');
     }
@@ -141,11 +151,15 @@ static const authBaseUrl = "$baseUrl/user";
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        return throw Exception(
-          responseData['message'] ?? 'Failed to complete the request',
+        if (e.response!.statusCode == 500) {
+          throw Exception('Server error: Please try again later');
+        }
+        throw Exception(
+          responseData['message'] ??
+              'Request failed: ${e.response!.statusCode}',
         );
       }
-      throw Exception('Failed: DioException: ${e.message}');
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Failed: $e');
     }
@@ -156,12 +170,38 @@ static const authBaseUrl = "$baseUrl/user";
     String userId,
     String name,
     String dob,
-    String image,
+    String mobile,
+    String? profilePic,
   ) async {
+    var formData = FormData();
+    formData.fields.addAll([
+      MapEntry('name', name),
+      MapEntry('dob', dob),
+      MapEntry('mobile', mobile),
+    ]);
+
+    print("Profile Pic: $profilePic");
+    if (profilePic != null && profilePic.isNotEmpty) {
+      // Check if file exists before adding
+      if (await File(profilePic).exists()) {
+        formData.files.add(
+          MapEntry(
+            'profilePic',
+            await MultipartFile.fromFile(
+              profilePic,
+              filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+            ),
+          ),
+        );
+      }
+    }
+
+    print("FormData: ${formData.boundaryName}");
+
     try {
       final response = await dio.put(
         '$authBaseUrl/$userId', // Assuming the endpoint is /forgot-password
-        data: {'name': name, 'dob': dob},
+        data: formData,
       );
 
       final responseData = response.data;
@@ -182,6 +222,18 @@ static const authBaseUrl = "$baseUrl/user";
         print("Failed: Server returned an error.");
         throw Exception('Failed: Server returned an error.');
       }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        if (e.response!.statusCode == 500) {
+          throw Exception('Server error: Please try again later');
+        }
+        throw Exception(
+          responseData['message'] ??
+              'Request failed: ${e.response!.statusCode}',
+        );
+      }
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       print("Except: $e");
       throw Exception('Failed: $e');

@@ -62,9 +62,8 @@ class HomeScreen extends StatelessWidget {
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, profileState) {
             if (profileState is ProfileLoaded &&
-                profileState.user.image.isNotEmpty) {
-              profilePic =
-                  profileState.user.image; // Update with actual profile picture
+                profileState.user.profilePic.isNotEmpty) {
+              profilePic = profileState.user.profilePic;
             }
 
             return CircleAvatar(backgroundImage: NetworkImage(profilePic));

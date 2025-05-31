@@ -43,7 +43,7 @@ class ProfileScreen extends StatelessWidget {
               );
               return Column(
                 children: [
-                  _buildProfileHeader(state.user.name, state.user.image),
+                  _buildProfileHeader(state.user.name, state.user.profilePic),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 15),

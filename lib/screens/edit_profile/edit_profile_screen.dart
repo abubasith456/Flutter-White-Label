@@ -18,6 +18,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _dobController;
+  late TextEditingController _mobileController;
   String profilePicUrl = "";
   String userId = ""; // Store userId here
 
@@ -29,8 +30,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _nameController = TextEditingController(text: profileState.user.name);
       _emailController = TextEditingController(text: profileState.user.email);
       _dobController = TextEditingController(text: profileState.user.dob);
+      _mobileController = TextEditingController(text: profileState.user.mobile);
       profilePicUrl =
-          profileState.user.image.isNotEmpty ? profileState.user.image : "";
+          profileState.user.profilePic.isNotEmpty
+              ? profileState.user.profilePic
+              : "";
       userId = profileState.user.id; // Assign userId here
       print("Profile: $profilePicUrl");
     }
@@ -55,6 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           username: _nameController.text,
           email: _emailController.text,
           dob: _dobController.text,
+          mobile: _mobileController.text,
           profilePicUrl: profilePicUrl,
         ),
       );
@@ -76,45 +81,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(title: "Edit Profile"),
-          body: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          profilePicUrl.isNotEmpty
-                              ? (profilePicUrl.startsWith('http')
-                                  ? NetworkImage(profilePicUrl) as ImageProvider
-                                  : FileImage(File(profilePicUrl)))
-                              : null,
-                      child:
-                          profilePicUrl.isEmpty
-                              ? const Icon(Icons.camera_alt, size: 50)
-                              : null,
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundImage:
+                            profilePicUrl.isNotEmpty
+                                ? (profilePicUrl.startsWith('http')
+                                    ? NetworkImage(profilePicUrl)
+                                        as ImageProvider
+                                    : FileImage(File(profilePicUrl)))
+                                : null,
+                        child:
+                            profilePicUrl.isEmpty
+                                ? const Icon(Icons.camera_alt, size: 50)
+                                : null,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildTextField(_nameController, "Name"),
-                  _buildTextField(_emailController, "Email"),
-                  _buildTextField(_dobController, "Date of Birth"),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _saveProfile,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      minimumSize: const Size(double.infinity, 50),
+                    const SizedBox(height: 20),
+                    _buildTextField(_nameController, "Name"),
+                    _buildTextField(_emailController, "Email"),
+                    _buildTextField(_dobController, "Date of Birth"),
+                    _buildTextField(
+                      _mobileController,
+                      "Mobile",
+                      inputType: TextInputType.phone,
                     ),
-                    child: Text(
-                      state is ProfileLoading ? "Saving..." : "Save Changes",
-                      style: TextStyle(color: Colors.white),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _saveProfile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      child: Text(
+                        state is ProfileLoading ? "Saving..." : "Save Changes",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -123,11 +136,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    TextInputType? inputType,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextFormField(
         controller: controller,
+        keyboardType: inputType,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
@@ -141,10 +159,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 r"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$",
               ).hasMatch(value)) {
             return "Please enter a valid email";
+          } else if (label == "Mobile" &&
+              !RegExp(r"^\d{10}$").hasMatch(value)) {
+            return "Please enter a valid 10-digit mobile number";
           }
           return null;
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _dobController.dispose();
+    _mobileController.dispose();
+    super.dispose();
   }
 }

@@ -137,6 +137,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                             duration: defaultDuration,
                           );
                         } else {
+                          completeOnboarding();
                           Navigator.pushNamed(context, logInScreenRoute);
                         }
                       },

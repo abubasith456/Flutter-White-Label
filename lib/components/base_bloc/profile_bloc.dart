@@ -30,6 +30,7 @@ class UpdateProfile extends ProfileEvent {
   final String username;
   final String email;
   final String dob;
+  final String mobile;
   final String profilePicUrl;
 
   UpdateProfile({
@@ -37,11 +38,19 @@ class UpdateProfile extends ProfileEvent {
     required this.username,
     required this.email,
     required this.dob,
+    required this.mobile,
     required this.profilePicUrl,
   });
 
   @override
-  List<Object> get props => [userId, username, email, dob, profilePicUrl];
+  List<Object> get props => [
+    userId,
+    username,
+    email,
+    dob,
+    mobile,
+    profilePicUrl,
+  ];
 }
 
 class ViewAddress extends ProfileEvent {}
@@ -101,13 +110,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     emit(ProfileLoading());
-
+    print("LoadProfile called with userId: ${event.userId}");
     try {
       // Fetch profile data using the userId from the event
       ApiResponse<User> response = await _authRepository.getProfile(
         event.userId, // Use the userId passed in the event
       );
-
+      print(response.data);
       if (response.success) {
         if (response.data != null) {
           sl<SharedPrefService>().setUser(response.data!);
@@ -120,6 +129,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         emit(ProfileError('Failed to load profile'));
       }
     } catch (e) {
+      print("CATCH called");
       // Handle any errors that occur during fetching
       emit(ProfileError(e.toString()));
     }
@@ -132,30 +142,29 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       emit(ProfileLoading());
 
+      print(
+        "ProfileBloc: UpdateProfile called with userId: ${event.profilePicUrl}",
+      );
+
       final response = await _authRepository.updateProfile(
         event.userId,
         event.username,
         event.dob,
+        event.mobile,
         event.profilePicUrl,
       );
 
-      emit(
-        ProfileLoaded(
-          user:
-              response.data ??
-              User(
-                id: "0",
-                name: event.username,
-                email: event.email,
-                mobile: "",
-                image: "",
-                dob: event.dob,
-                addresses: [],
-              ),
-        ),
-      );
+      if (response.success && response.data != null) {
+        print("Profile updated successfully");
+        print("Profile data: ${response.data?.profilePic}");
+        // Update local storage
+        sl<SharedPrefService>().setUser(response.data!);
+        emit(ProfileLoaded(user: response.data!));
+      } else {
+        emit(ProfileError("Failed to update profile"));
+      }
     } catch (e) {
-      emit(ProfileError("Failed to update profile"));
+      emit(ProfileError(e.toString()));
     }
   }
 
