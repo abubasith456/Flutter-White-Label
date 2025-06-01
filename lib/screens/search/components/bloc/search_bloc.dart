@@ -20,6 +20,8 @@ abstract class SearchState {}
 
 class SearchInitial extends SearchState {}
 
+class SearchDataLoading extends SearchState {}
+
 class SearchDataLoaded extends SearchState {
   final List<Product> allProducts; // Store all products
   final List<Product> displayedProducts; // Filtered products
@@ -45,6 +47,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   SearchBloc({required this.productRepository}) : super(SearchInitial()) {
     on<LoadData>((event, emit) async {
+      emit(SearchDataLoading());
+
       try {
         final categoriesResponse = await productRepository.getCategories();
         final productsResponse = await productRepository.getProducts();

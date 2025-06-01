@@ -19,4 +19,5 @@ abstract class AuthRepository {
     String mobile,
     String? profilePic,
   );
+  Future<ApiResponse<User>> updateFcmToken(String userId, String fcmToken);
 }

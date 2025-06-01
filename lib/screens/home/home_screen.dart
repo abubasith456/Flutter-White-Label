@@ -7,6 +7,7 @@ import 'package:demo_app/models/enums/product_size_type.dart';
 import 'package:demo_app/route/route_constants.dart';
 import 'package:demo_app/screens/cart/components/block/cart_block.dart';
 import 'package:demo_app/screens/home/components/bloc/home_bloc.dart';
+import 'package:demo_app/screens/home/components/home_screen_shiimmer.dart';
 import 'package:demo_app/screens/product_details/components/product_details_args.dart';
 import 'package:demo_app/screens/products/components/custom_product_card.dart';
 import 'package:demo_app/screens/products/components/product_args.dart';
@@ -27,7 +28,11 @@ class HomeScreen extends StatelessWidget {
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Scaffold(
+              backgroundColor: Colors.white,
+              appBar: HomeScreenAppBar(context, ""),
+              body: const HomeScreenShimmer(),
+            );
           } else if (state is HomeLoaded) {
             return Scaffold(
               backgroundColor: Colors.white,

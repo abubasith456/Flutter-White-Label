@@ -1,6 +1,10 @@
 import 'package:demo_app/app_config.dart';
+import 'package:demo_app/components/base/custom_alert_dialog.dart';
+import 'package:demo_app/components/base/custom_dialog.dart';
 import 'package:demo_app/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/route/screen_export.dart';
+import 'package:demo_app/screens/profile/components/profile_screen_shimmer.dart';
+import 'package:demo_app/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +40,7 @@ class ProfileScreen extends StatelessWidget {
           },
           builder: (context, state) {
             if (state is ProfileLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const ProfileScreenShimmer();
             } else if (state is ProfileLoaded) {
               print(
                 "state is ProfileLoaded called builder: ${state.user.name}",
@@ -116,9 +120,46 @@ class ProfileScreen extends StatelessWidget {
           Navigator.pushNamed(context, notificationScreenRoute);
         }),
         _buildOptionItem(Icons.logout, "Logout", () {
-          context.read<ProfileBloc>().add(Logout());
+          _showLogoutConfirmationDialog(context);
         }),
       ],
+    );
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Logout Dialog",
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, animation1, animation2) {
+        return CustomAlertDialog(
+          type: AlertType.confirmation,
+          title: 'Logout Confirmation',
+          message: 'Are you sure you want to log out of your account?',
+          confirmText: 'Logout',
+          cancelText: 'Cancel',
+          onConfirm: () {
+            // Trigger logout
+            context.read<ProfileBloc>().add(Logout());
+          },
+        );
+      },
+      transitionBuilder: (ctx, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(
+            begin: const Offset(0, 0.2),
+            end: const Offset(0, 0),
+          ).animate(CurvedAnimation(parent: anim1, curve: Curves.easeInOut)),
+          child: FadeTransition(
+            opacity: Tween(
+              begin: 0.0,
+              end: 1.0,
+            ).animate(CurvedAnimation(parent: anim1, curve: Curves.easeInOut)),
+            child: child,
+          ),
+        );
+      },
     );
   }
 

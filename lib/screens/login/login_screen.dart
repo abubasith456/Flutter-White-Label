@@ -1,4 +1,5 @@
 import 'package:demo_app/app_config.dart';
+import 'package:demo_app/components/base/custom_alert_dialog.dart';
 import 'package:demo_app/components/base/custom_dialog.dart';
 import 'package:demo_app/components/base_bloc/profile_bloc.dart';
 import 'package:demo_app/route/screen_export.dart';
@@ -83,9 +84,18 @@ class LoginScreen extends StatelessWidget {
                           (Route<dynamic> route) => false,
                         );
                       } else if (state is LoginFailure) {
-                        sl<DialogService>().showErrorDialog(
-                          context,
-                          state.errorMessage,
+                        showDialog(
+                          context: context,
+                          builder:
+                              (context) => CustomAlertDialog(
+                                type: AlertType.error,
+                                title: 'Login Failed',
+                                message: state.errorMessage,
+                                confirmText: 'Try Again',
+                                onConfirm: () {
+                                  // Optional: Add any additional actions needed after dialog dismissal
+                                },
+                              ),
                         );
                       }
                     },

@@ -4,6 +4,7 @@ import 'package:demo_app/route/route_constants.dart';
 import 'package:demo_app/screens/product_details/components/product_details_args.dart';
 import 'package:demo_app/screens/products/components/bloc/product_bloc.dart';
 import 'package:demo_app/screens/products/components/custom_product_card.dart';
+import 'package:demo_app/screens/products/components/products_screen_shimmering.dart';
 import 'package:demo_app/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +31,7 @@ class ProductsListScreen extends StatelessWidget {
         child: BlocBuilder<ProductsBloc, ProductsState>(
           builder: (context, state) {
             if (state is ProductsLoading) {
-              return Center(child: CircularProgressIndicator());
+              return const ProductsScreenShimmer();
             }
 
             if (state is ProductsLoaded) {

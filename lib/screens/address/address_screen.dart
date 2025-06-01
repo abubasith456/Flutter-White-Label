@@ -11,7 +11,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class AddressScreen extends StatefulWidget {
   final bool isSelectionMode;
 
-  const AddressScreen({super.key, this.isSelectionMode = false});
+  const AddressScreen({
+    super.key,
+    this.isSelectionMode = false, // Default to false for profile flow
+  });
 
   @override
   State<AddressScreen> createState() => _AddressScreenState();
@@ -38,8 +41,9 @@ class _AddressScreenState extends State<AddressScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         title: widget.isSelectionMode ? "Select Address" : "My Addresses",
+        // Only show confirm button in selection mode when an address is selected
         showActionButton: widget.isSelectionMode && _hasSelectedAddress(),
-        actionIcon: Icons.confirmation_num,
+        actionIcon: Icons.check,
         onAction: () {
           if (_hasSelectedAddress()) {
             _confirmSelection();
@@ -135,7 +139,7 @@ class _AddressScreenState extends State<AddressScreen> {
   void _confirmSelection() {
     final state = context.read<AddressBloc>().state;
     if (state.selectedAddress != null) {
-      Navigator.pop(context, state.selectedAddress);
+      Navigator.pop(context, state.selectedAddress); // Return selected address
     }
   }
 

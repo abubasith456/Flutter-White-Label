@@ -1,5 +1,6 @@
 import 'package:demo_app/components/base/custom_appbar.dart';
 import 'package:demo_app/screens/search/components/bloc/search_bloc.dart';
+import 'package:demo_app/screens/search/components/search_screen_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -52,39 +53,64 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: "Search"),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildSearchField(),
-            const SizedBox(height: 10),
-            _buildCategoryChips(),
-            const SizedBox(height: 10),
-            Expanded(child: _buildProductList()),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.withOpacity(0.1), Colors.white],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              _buildSearchField(),
+              const SizedBox(height: 16),
+              _buildCategoryChips(),
+              const SizedBox(height: 16),
+              Expanded(child: _buildProductList()),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSearchField() {
-    return TextField(
-      controller: _searchController,
-      onChanged: (query) => _onSearch(),
-      decoration: InputDecoration(
-        labelText: 'Search for products',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon:
-            _searchController.text.isNotEmpty
-                ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    _onSearch();
-                  },
-                )
-                : null,
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (query) => _onSearch(),
+        decoration: InputDecoration(
+          labelText: 'Search for products',
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          prefixIcon: const Icon(Icons.search, color: Colors.blue),
+          suffixIcon:
+              _searchController.text.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear, color: Colors.grey),
+                    onPressed: () {
+                      _searchController.clear();
+                      _onSearch();
+                    },
+                  )
+                  : null,
+        ),
       ),
     );
   }
@@ -93,36 +119,40 @@ class _SearchScreenState extends State<SearchScreen> {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
         if (state is SearchDataLoaded) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children:
-                  state.categories.map((category) {
-                    final isSelected = _selectedCategories.contains(
-                      category.id,
-                    );
+          return Container(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: state.categories.length,
+              itemBuilder: (context, index) {
+                final category = state.categories[index];
+                final isSelected = _selectedCategories.contains(category.id);
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: ChoiceChip(
-                        label: Text(category.name),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          _onCategorySelected(category.id);
-                        },
-                        selectedColor: Colors.blueAccent,
-                        backgroundColor: Colors.grey[200],
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: FilterChip(
+                    label: Text(category.name),
+                    selected: isSelected,
+                    onSelected: (selected) => _onCategorySelected(category.id),
+                    selectedColor: Colors.blue,
+                    backgroundColor: Colors.white,
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black87,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    elevation: 3,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                );
+              },
             ),
           );
         }
-
-        return const SizedBox.shrink(); // Hide if no categories are available
+        return const SizedBox.shrink();
       },
     );
   }
@@ -130,10 +160,28 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildProductList() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
+        if (state is SearchDataLoading) {
+          return const SearchScreenShimmer();
+        }
+
         if (state is SearchDataLoaded) {
           if (state.displayedProducts.isEmpty) {
-            return const Center(
-              child: Text("No products found", style: TextStyle(fontSize: 16)),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    "No products found",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             );
           }
 
@@ -141,23 +189,29 @@ class _SearchScreenState extends State<SearchScreen> {
             itemCount: state.displayedProducts.length,
             itemBuilder: (context, index) {
               final product = state.displayedProducts[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-                elevation: 3,
                 child: ListTile(
+                  contentPadding: const EdgeInsets.all(12),
                   leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      8,
-                    ), // Optional: Add rounded corners
+                    borderRadius: BorderRadius.circular(12),
                     child:
                         product.images.isNotEmpty
                             ? Image.network(
                               product.images[0],
-                              width: 60,
-                              height: 60,
+                              width: 70,
+                              height: 70,
                               fit: BoxFit.cover,
                               errorBuilder:
                                   (context, error, stackTrace) =>
@@ -183,20 +237,30 @@ class _SearchScreenState extends State<SearchScreen> {
                                 );
                               },
                             )
-                            : _fallbackImage(), // Show placeholder if no image is available
+                            : _fallbackImage(),
                   ),
                   title: Text(
                     product.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   subtitle: Text(
-                    'Price: \$${product.price.toStringAsFixed(2)}',
-                    style: const TextStyle(color: Colors.green),
+                    '\$${product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
                   ),
-                  trailing: const Icon(Icons.shopping_cart, color: Colors.blue),
-                  onTap: () {
-                    // Implement add to cart logic
-                  },
+                  trailing: IconButton(
+                    icon: const Icon(Icons.add_shopping_cart),
+                    color: Colors.blue,
+                    onPressed: () {
+                      // Implement add to cart logic
+                    },
+                  ),
                 ),
               );
             },
@@ -205,7 +269,21 @@ class _SearchScreenState extends State<SearchScreen> {
 
         if (state is SearchError) {
           return Center(
-            child: Text(state.message, style: TextStyle(color: Colors.red)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                const SizedBox(height: 16),
+                Text(
+                  state.message,
+                  style: TextStyle(
+                    color: Colors.red[700],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           );
         }
 
@@ -216,9 +294,12 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _fallbackImage() {
     return Container(
-      width: 60,
-      height: 60,
-      color: Colors.grey[300], // Light grey background
+      width: 70,
+      height: 70,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: const Icon(
         Icons.image_not_supported,
         size: 30,

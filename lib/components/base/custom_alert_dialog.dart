@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-enum AlertType { success, error, info, warning }
+enum AlertType { success, error, info, warning, confirmation }
 
 class CustomAlertDialog extends StatelessWidget {
   final AlertType type;
   final String title;
   final String message;
   final VoidCallback? onClose;
+  final VoidCallback? onConfirm;
+  final String? confirmText;
+  final String? cancelText;
 
   const CustomAlertDialog({
     super.key,
@@ -14,6 +17,9 @@ class CustomAlertDialog extends StatelessWidget {
     required this.title,
     required this.message,
     this.onClose,
+    this.onConfirm,
+    this.confirmText,
+    this.cancelText,
   });
 
   Color _getColor() {
@@ -26,6 +32,8 @@ class CustomAlertDialog extends StatelessWidget {
         return Colors.blue;
       case AlertType.warning:
         return Colors.orange;
+      case AlertType.confirmation:
+        return Colors.blue;
     }
   }
 
@@ -39,6 +47,8 @@ class CustomAlertDialog extends StatelessWidget {
         return [Colors.lightBlueAccent, Colors.blue];
       case AlertType.warning:
         return [Colors.orangeAccent, Colors.deepOrange];
+      case AlertType.confirmation:
+        return [Colors.lightBlueAccent, Colors.blue];
     }
   }
 
@@ -52,7 +62,95 @@ class CustomAlertDialog extends StatelessWidget {
         return Icons.info_rounded;
       case AlertType.warning:
         return Icons.warning_amber_rounded;
+      case AlertType.confirmation:
+        return Icons.help_outline_rounded;
     }
+  }
+
+  Widget _buildButtons(BuildContext context) {
+    if (type == AlertType.confirmation) {
+      return Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[100],
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                cancelText ?? 'Cancel',
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _getColor(),
+                elevation: 4,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                shadowColor: _getColor().withOpacity(0.25),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                onConfirm?.call();
+              },
+              child: Text(
+                confirmText ?? 'Confirm',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _getColor(),
+          elevation: 4,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          shadowColor: _getColor().withOpacity(0.25),
+        ),
+        onPressed: () {
+          Navigator.of(context).pop();
+          onClose?.call();
+        },
+        child: const Text(
+          'OK',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
+            letterSpacing: 0.1,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -138,33 +236,7 @@ class CustomAlertDialog extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _getColor(),
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        shadowColor: _getColor().withOpacity(0.25),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        if (onClose != null) onClose!();
-                      },
-                      child: const Text(
-                        'OK',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 17,
-                          letterSpacing: 0.1,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildButtons(context),
                 ],
               ),
             ),

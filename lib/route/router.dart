@@ -102,7 +102,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case editProfileScreenRoute:
       return MaterialPageRoute(builder: (context) => const EditProfileScreen());
     case addressScreenRouter:
-      return MaterialPageRoute(builder: (context) => const AddressScreen());
+      return MaterialPageRoute(
+        builder:
+            (context) => const AddressScreen(
+              isSelectionMode: false,
+            ), // Default to false for profile flow
+      );
     case orderHistoryScreenRoute:
       return MaterialPageRoute(
         builder: (context) => const OrderHistoryScreen(),

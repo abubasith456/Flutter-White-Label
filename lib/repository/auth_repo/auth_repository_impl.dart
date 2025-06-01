@@ -239,4 +239,44 @@ class AuthRepositoryImpl implements AuthRepository {
       throw Exception('Failed: $e');
     }
   }
+
+  @override
+  Future<ApiResponse<User>> updateFcmToken(
+    String userId,
+    String fcmToken,
+  ) async {
+    try {
+      Response response = await dio.post(
+        '$authBaseUrl/update-fcm-token',
+        data: {'userId': userId, 'fcmToken': fcmToken},
+      );
+
+      final responseData = response.data;
+
+      if (response.statusCode == 200) {
+        if (responseData['success']) {
+          return ApiResponse<User>.fromJson(
+            responseData,
+            (data) => User.fromJson(data['user']),
+          );
+        } else {
+          throw Exception(
+            responseData['message'] ?? 'Failed to update FCM token',
+          );
+        }
+      } else {
+        throw Exception('Failed: Server returned an error.');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        throw Exception(
+          responseData['message'] ?? 'Failed to complete the request',
+        );
+      }
+      throw Exception('Failed: DioException: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed: $e');
+    }
+  }
 }

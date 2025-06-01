@@ -5,6 +5,7 @@ import 'package:demo_app/components/base/custom_button.dart';
 import 'package:demo_app/models/address_model.dart';
 import 'package:demo_app/models/cart_model.dart';
 import 'package:demo_app/repository/address_repository.dart';
+import 'package:demo_app/route/screen_export.dart';
 import 'package:demo_app/screens/address/address_screen.dart';
 import 'package:demo_app/screens/address/components/bloc/adress_bloc.dart';
 import 'package:demo_app/screens/cart/components/block/cart_block.dart';
@@ -383,22 +384,12 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
   }
 
   Future<void> _navigateToAddressScreen(BuildContext context) async {
-    // Get shared preferences instance
-    final prefs = await SharedPreferences.getInstance();
-
-    // Navigate to address screen in selection mode
-    final result = await Navigator.push(
+    final result = await Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder:
-            (context) => BlocProvider(
-              create: (context) => AddressBloc(AddressRepository(prefs)),
-              child: const AddressScreen(isSelectionMode: true),
-            ),
-      ),
+      addressScreenRouter,
+      arguments: {'isSelectionMode': true},
     );
 
-    // If an address was selected, update the selected address
     if (result != null && result is AddressModel) {
       context.read<AddressBloc>().add(SelectAddress(result));
     }
