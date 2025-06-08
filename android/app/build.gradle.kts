@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.whitelable.dev"
+    namespace = "com.example.demo_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.whitelable.dev"
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId = "com.example.demo_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -36,8 +37,6 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
-
-    ndkVersion = "27.0.12077973"
 }
 
 flutter {
