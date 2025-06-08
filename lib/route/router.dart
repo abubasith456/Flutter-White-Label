@@ -1,7 +1,7 @@
 import 'package:demo_app/models/products_model.dart';
 import 'package:demo_app/screens/forgot/forgot_screen.dart';
 import 'package:demo_app/screens/product_details/components/product_details_args.dart';
-import 'package:demo_app/screens/products/components/product_args.dart';
+import 'package:demo_app/utils/navigation_helper.dart';
 import 'package:demo_app/services/service_locator.dart';
 import 'package:demo_app/services/shared_pref_service.dart';
 import 'package:flutter/material.dart';

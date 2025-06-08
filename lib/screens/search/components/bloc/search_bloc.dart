@@ -81,26 +81,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
                 return matchesQuery && matchesCategory;
               }).toList();
 
-          if (event.selectedCategories.isEmpty) {
-            emit(
-              SearchDataLoaded(
-                allProducts: currentState.allProducts, // Keep all products
-                displayedProducts: [], // Update only displayed list
-                categories: currentState.categories,
-                selectedCategories: selectedCategories,
-              ),
-            );
-          } else {
-            emit(
-              SearchDataLoaded(
-                allProducts: currentState.allProducts, // Keep all products
-                displayedProducts:
-                    filteredProducts, // Update only displayed list
-                categories: currentState.categories,
-                selectedCategories: selectedCategories,
-              ),
-            );
-          }
+          emit(
+            SearchDataLoaded(
+              allProducts: currentState.allProducts, // Keep all products
+              displayedProducts:
+                  filteredProducts, // Always show filtered results
+              categories: currentState.categories,
+              selectedCategories: selectedCategories,
+            ),
+          );
         }
       } catch (e) {
         emit(SearchError('Failed to search products: ${e.toString()}'));
