@@ -33,6 +33,11 @@ class SelectAddress extends AddressEvent {
   SelectAddress(this.address);
 }
 
+class SetDefaultAddress extends AddressEvent {
+  final String id;
+  SetDefaultAddress(this.id);
+}
+
 // States
 class AddressState extends Equatable {
   final List<AddressModel> addresses;
@@ -86,6 +91,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     on<SetPrimaryAddress>(_onSetPrimaryAddress);
     on<DeleteAddress>(_onDeleteAddress);
     on<SelectAddress>(_onSelectAddress);
+    on<SetDefaultAddress>(_onSetDefaultAddress);
   }
 
   Future<void> _onLoadAddresses(
@@ -324,5 +330,23 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
 
   void _onSelectAddress(SelectAddress event, Emitter<AddressState> emit) {
     emit(state.copyWith(selectedAddress: event.address, isActionSuccess: true));
+  }
+
+  void _onSetDefaultAddress(
+    SetDefaultAddress event,
+    Emitter<AddressState> emit,
+  ) {
+    try {
+      final updatedList =
+          state.addresses.map((addr) {
+            return addr.id == event.id
+                ? addr.copyWith(isPrimary: true)
+                : addr.copyWith(isPrimary: false);
+          }).toList();
+
+      emit(state.copyWith(addresses: updatedList, isActionSuccess: true));
+    } catch (e) {
+      emit(state.copyWith(errorMessage: "Failed to set default address: $e"));
+    }
   }
 }

@@ -60,17 +60,12 @@ class CustomButton extends StatelessWidget {
           decoration:
               isGradient && isEnabled
                   ? BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppConfig.primaryButtonColor,
-                        AppConfig.primaryColor,
-                      ],
-                    ),
+                    gradient: LinearGradient(colors: AppConfig.gradientColors),
                     borderRadius: BorderRadius.circular(borderRadius),
                   )
                   : isGradient && !isEnabled
                   ? BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppConfig.greyColor.shade300,
                     borderRadius: BorderRadius.circular(borderRadius),
                   )
                   : null,
@@ -99,13 +94,13 @@ class CustomButton extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       letterSpacing:
                           MediaQuery.of(context).size.width < 375 ? 0.5 : 1.2,
-                      height: 1.2, // Reduced height for smaller screens
+                      height: 1.2,
                       leadingDistribution: TextLeadingDistribution.even,
                       textBaseline: TextBaseline.alphabetic,
                       color:
                           isEnabled
                               ? AppConfig.primaryButtonTextColor
-                              : Colors.grey.shade600,
+                              : AppConfig.greyColor.shade600,
                     ),
                   ),
                 ],
