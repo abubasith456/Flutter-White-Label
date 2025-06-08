@@ -91,10 +91,6 @@ class LoginScreen extends StatelessWidget {
                                 type: AlertType.error,
                                 title: 'Login Failed',
                                 message: state.errorMessage,
-                                confirmText: 'Try Again',
-                                onConfirm: () {
-                                  // Optional: Add any additional actions needed after dialog dismissal
-                                },
                               ),
                         );
                       }

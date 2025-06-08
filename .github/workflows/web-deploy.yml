@@ -36,7 +36,16 @@ jobs:
         run: flutter pub get
         
       - name: Build Flutter Web
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        run: |
+          flutter config --enable-web
+          flutter clean
+          flutter pub get
+          flutter build web \
+            --release \
+            --base-href "/${{ github.event.repository.name }}/" \
+            --dart-define=FLUTTER_WEB_RENDERER=html \
+            --dart-define=FLUTTER_WEB_USE_SKIA=true \
+            --no-tree-shake-icons
         
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
