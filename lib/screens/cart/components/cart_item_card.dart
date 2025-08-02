@@ -183,7 +183,7 @@ class CartItemCard extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.grey[25]!, Colors.grey[50]!],
+                  colors: [Colors.grey[50]!, Colors.grey[100]!],
                 ),
                 border: Border(
                   top: BorderSide(color: Colors.grey[200]!, width: 1),

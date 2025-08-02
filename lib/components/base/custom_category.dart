@@ -32,7 +32,7 @@ class CustomCategoryList extends StatelessWidget {
                 crossAxisCount: itemsPerRow,
                 mainAxisSpacing: 20,
                 crossAxisSpacing: 16,
-                childAspectRatio: screenWidth < 350 ? 0.8 : 0.85,
+                childAspectRatio: screenWidth < 350 ? 0.7 : 0.75,
               ),
               itemCount: categories.length,
               itemBuilder: (context, index) {
@@ -105,6 +105,7 @@ class _CategoryItemState extends State<_CategoryItem>
             scale: _scaleAnimation.value,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Stack(
                   children: [
@@ -139,7 +140,8 @@ class _CategoryItemState extends State<_CategoryItem>
                 const SizedBox(height: 8),
 
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 85),
+                  constraints: const BoxConstraints(maxWidth: 80),
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: Text(
                     widget.category.name,
                     style: AppTextStyles.categoryName,

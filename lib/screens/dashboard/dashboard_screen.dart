@@ -12,102 +12,55 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => DashboardBloc(),
+      create: (_) => DashboardBloc(),
       child: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           return Scaffold(
-            body: Stack(
-              children: [
-                IndexedStack(
-                  index: state.currentIndex,
-                  children: const [HomeScreen(), ProfileScreen()],
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 20,
-                  right: 20,
-                  child: _buildFloatingTabBar(context, state.currentIndex),
-                ),
-              ],
+            body: IndexedStack(
+              index: state.currentIndex,
+              children: const [HomeScreen(), ProfileScreen()],
             ),
+            bottomNavigationBar: _AppBottomNav(context, state.currentIndex),
           );
         },
       ),
     );
   }
 
-  Widget _buildFloatingTabBar(BuildContext context, int currentIndex) {
-    return SafeArea(
-      child: Container(
-        height: 60,
-        decoration: BoxDecoration(
-          color: Color.alphaBlend(
-            Colors.white.withAlpha(240), // Adjust transparency
-            Colors.white,
-          ),
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(25),
-              blurRadius: 15,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: (index) {
-              context.read<DashboardBloc>().add(UpdateTab(index));
-            },
-            backgroundColor: Colors.transparent,
-            selectedItemColor: Colors.blueAccent,
-            unselectedItemColor: Colors.grey,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            elevation: 0,
-            items: [
-              _buildNavItem(
-                "assets/icons/hut-icon.svg",
-                "Home",
-                0,
-                currentIndex,
-              ),
-              _buildNavItem(
-                "assets/icons/corporate-user-icon.svg",
-                "Profile",
-                1,
-                currentIndex,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  BottomNavigationBarItem _buildNavItem(
-    String iconPath,
-    String label,
-    int index,
-    int currentIndex,
-  ) {
-    return BottomNavigationBarItem(
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SvgPicture.asset(
-            iconPath,
-            height: 25,
+  Widget _AppBottomNav(BuildContext ctx, int currentIndex) {
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: AppConfig.backgroundColor,
+      selectedItemColor: AppConfig.primaryColor,
+      unselectedItemColor: Colors.grey[600],
+      showUnselectedLabels: false,
+      elevation: 8,
+      onTap: (index) => ctx.read<DashboardBloc>().add(UpdateTab(index)),
+      items: [
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            'assets/icons/hut-icon.svg',
+            height: 24,
             colorFilter: ColorFilter.mode(
-              index == currentIndex ? AppConfig.primaryColor : Colors.grey,
+              currentIndex == 0 ? AppConfig.primaryColor : Colors.grey[600]!,
               BlendMode.srcIn,
             ),
           ),
-        ],
-      ),
-      label: label,
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            'assets/icons/corporate-user-icon.svg',
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              currentIndex == 1 ? AppConfig.primaryColor : Colors.grey[600]!,
+              BlendMode.srcIn,
+            ),
+          ),
+          label: 'Profile',
+        ),
+      ],
     );
   }
 }

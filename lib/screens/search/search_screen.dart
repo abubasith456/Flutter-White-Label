@@ -77,8 +77,6 @@ class _SearchScreenState extends State<SearchScreen>
       appBar: CustomAppBar(
         title: "Search Product",
         subtitle: "search your item",
-        showActionButton: true,
-        actionIcon: Icons.delete_sweep_rounded,
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,
