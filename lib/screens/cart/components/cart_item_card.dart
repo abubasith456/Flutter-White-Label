@@ -120,18 +120,27 @@ class CartItemCard extends StatelessWidget {
                             if (cartItem.product.category != null) ...[
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+                                  horizontal: 10,
+                                  vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(6),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.grey[100]!,
+                                      Colors.grey[50]!,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    width: 1,
+                                  ),
                                 ),
                                 child: Text(
                                   cartItem.product.category!.name,
                                   style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
                                     color: Colors.grey[700],
                                   ),
                                 ),
@@ -147,16 +156,19 @@ class CartItemCard extends StatelessWidget {
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(12),
                       onTap: onRemove,
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [Colors.red[50]!, Colors.red[100]!],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.red[200]!, width: 1),
                         ),
                         child: Icon(
-                          Icons.delete_outline,
+                          Icons.delete_outline_rounded,
                           color: Colors.red[600],
                           size: 20,
                         ),
@@ -170,7 +182,9 @@ class CartItemCard extends StatelessWidget {
             // Quantity Controls
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                gradient: LinearGradient(
+                  colors: [Colors.grey[50]!, Colors.grey[100]!],
+                ),
                 border: Border(
                   top: BorderSide(color: Colors.grey[200]!, width: 1),
                 ),

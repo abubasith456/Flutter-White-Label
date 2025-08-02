@@ -87,4 +87,38 @@ class AppConfig {
 
   // Add borderRadius if not already defined
   static const double borderRadius = 12.0;
+
+  // Add missing getters referenced in the ProductDetailsScreen
+  static List<BoxShadow> get cardShadow => [
+    BoxShadow(color: shadowColor, blurRadius: 8, offset: const Offset(0, 2)),
+  ];
+
+  // Add color constants
+  static const Color textPrimary = Colors.black87;
+  static const Color textSecondary = Colors.black54;
+  static const Color textMuted = Colors.grey;
+  static const Color surfaceColor = Color(0xFFF5F5F5);
+
+  // Add spacing constants
+  static const double spacing = 16.0;
+  static const double spacingSmall = 8.0;
+  static const double spacingLarge = 24.0;
+
+  // Add border radius constants
+  static const double borderRadiusLarge = 20.0;
+
+  // Add primary dark color based on primary color
+  static Color get primaryDark => primaryColor.withOpacity(0.8);
+
+  // Add accent color
+  static const Color accentColor = Colors.orange;
+
+  // Add button shadow
+  static List<BoxShadow> get buttonShadow => [
+    BoxShadow(
+      color: primaryColor.withOpacity(0.25),
+      blurRadius: 8,
+      offset: const Offset(0, 4),
+    ),
+  ];
 }

@@ -8,15 +8,15 @@ import 'package:demo_app/route/route_constants.dart';
 import 'package:demo_app/screens/cart/components/block/cart_block.dart';
 import 'package:demo_app/screens/home/components/bloc/home_bloc.dart';
 import 'package:demo_app/screens/home/components/home_screen_shiimmer.dart';
-import 'package:demo_app/screens/product_details/components/product_details_args.dart';
 import 'package:demo_app/screens/products/components/custom_product_card.dart';
-import 'package:demo_app/screens/products/components/product_args.dart';
 import 'package:demo_app/services/service_locator.dart';
+import 'package:demo_app/utils/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:demo_app/models/api_model/banner_model.dart';
+import 'package:demo_app/utils/navigation_helper.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -83,10 +83,7 @@ class HomeScreen extends StatelessWidget {
               profileState is ProfileLoaded
                   ? "Hi, ${profileState.user.name}"
                   : "Hi, Welcome...",
-              style: TextStyle(
-                fontSize: 17, // Base size
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.appBarTitle,
             ),
           );
         },
@@ -148,107 +145,165 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildCarousel(List<HomeBanner> banners) {
-    return CarouselSlider(
-      options: CarouselOptions(
-        height: 160,
-        autoPlay: true,
-        enlargeCenterPage: true,
-        viewportFraction: 0.85,
-      ),
-      items:
-          banners.map((banner) {
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                image: DecorationImage(
-                  image: NetworkImage(banner.image),
-                  fit: BoxFit.cover,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: CarouselSlider(
+        options: CarouselOptions(
+          height: 180,
+          autoPlay: true,
+          autoPlayInterval: const Duration(seconds: 4),
+          enlargeCenterPage: true,
+          viewportFraction: 0.9,
+          enlargeStrategy: CenterPageEnlargeStrategy.zoom,
+        ),
+        items:
+            banners.map((banner) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 15,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
-              ),
-            );
-          }).toList(),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        banner.image,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.3),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+      ),
     );
   }
 
   Widget _buildCategories(List<Category> categories, BuildContext context) {
-    final int count = categories.length > 4 ? 2 : 1;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Text(
-            "Categories",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppConfig.primaryTextColor,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Categories", style: AppTextStyles.sectionHeader),
+                TextButton(
+                  onPressed: () {
+                    // Navigate to all categories
+                  },
+                  child: Text(
+                    "View All",
+                    style: TextStyle(
+                      color: AppConfig.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.only(top: 20),
-          child: CustomCategoryList(
+          const SizedBox(height: 8),
+          CustomCategoryList(
             categories: categories,
             onCategorySelected: (category) {
-              Navigator.pushNamed(
+              NavigationHelper.navigateToProducts(
                 context,
-                productsScreenRoute,
-                arguments: ProductsArguments(
-                  category: category.name,
-                  categoryId: category.id,
-                ),
+                category.name,
+                category.id,
               );
             },
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildNewProducts(List<Product> products) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 80),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "New Arrivals",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.8,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("New Arrivals", style: AppTextStyles.sectionHeader),
+                TextButton(
+                  onPressed: () {
+                    // Navigate to all products
+                  },
+                  child: Text(
+                    "See All",
+                    style: TextStyle(
+                      color: AppConfig.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ],
             ),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(5),
-                child: CustomProductCard(
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: products.length > 6 ? 6 : products.length,
+              itemBuilder: (context, index) {
+                return CustomProductCard(
                   image: products[index].images[0],
                   title: products[index].name,
                   price: products[index].price.toString(),
                   onTap: () {
-                    Navigator.pushNamed(
+                    NavigationHelper.navigateToProductDetails(
                       context,
-                      productDetailsScreenRoute, // Replace with your route name
-                      arguments: ProductDetailsArguments(
-                        product: products[index], // Pass the product data
-                        type: SizeType.number, // Pass the size type
-                      ),
+                      products[index],
+                      sizeType: SizeType.number,
                     );
                   },
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ],
       ),
